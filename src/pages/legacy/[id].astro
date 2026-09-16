@@ -1,0 +1,38 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const legacy = await getCollection('legacy');
+  return legacy.map((l) => ({ params: { id: l.id }, props: { stub: l } }));
+}
+
+const { stub } = Astro.props;
+const concepts = await getCollection('concepts');
+const target = concepts.find((c) => c.id === stub.data.replacedBy);
+---
+<Base title={`${stub.data.symbol} (legacy) — gdref`} description={stub.data.note}>
+  {/*
+    Deliberately thin. These exist so a reader with old code on screen finds
+    something when they search the symbol they can see — they are never linked
+    from tables or browse pages. See SCOPE.md.
+  */}
+  <article data-pagefind-body>
+    <p><span class="badge none">Legacy</span></p>
+    <h1><code style="background:none;color:inherit;padding:0">{stub.data.symbol}</code></h1>
+    <p class="lede">{stub.data.note}</p>
+
+    {target && (
+      <div class="callout">
+        <strong>Current equivalent</strong>
+        <a href={`/concepts/${target.id}/`}>{target.data.title}</a> — {target.data.summary}
+      </div>
+    )}
+
+    {stub.data.docsUrl && (
+      <p style="font-size:.84rem">
+        <a href={stub.data.docsUrl} rel="noopener nofollow" target="_blank">Unity's docs for the legacy API &nearr;</a>
+      </p>
+    )}
+  </article>
+</Base>

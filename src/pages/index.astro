@@ -1,0 +1,66 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import MappingBadge from '../components/MappingBadge.astro';
+import { ENGINE_META, godotApi } from '../lib/engines';
+
+const concepts = (await getCollection('concepts')).filter((c) => !c.data.draft);
+const featured = ['per-frame-update', 'input-actions', 'spawn-object', 'components-vs-nodes']
+  .map((id) => concepts.find((c) => c.id === id))
+  .filter(Boolean);
+const methods = godotApi.classes.reduce((n, c) => n + c.methods.length, 0);
+---
+<Base
+  title="gdref — Unity ⇄ Godot reference"
+  description="A Rosetta stone and script reference for developers moving between Unity 6 and Godot 4."
+>
+  <h1>Unity &rlarr; Godot, side by side</h1>
+  <p class="lede">
+    You know how to do it in one engine. This tells you how to say it in the other —
+    with the full Godot script reference underneath, and honest notes where the two
+    do not line up.
+  </p>
+
+  <div class="pair">
+    <div class="panel">
+      <header><strong style="color:var(--unity)">{ENGINE_META.unity.label}</strong>
+        <span class="badge">{ENGINE_META.unity.versionFull}</span></header>
+      <p class="note">
+        Modern APIs only — Input System, <code>Awaitable</code>, URP. Legacy symbols are
+        searchable but never featured. Docs are proprietary, so pages carry our own prose
+        and link out for the full text.
+      </p>
+    </div>
+    <div class="panel">
+      <header><strong style="color:var(--godot)">{ENGINE_META.godot.label}</strong>
+        <span class="badge">{ENGINE_META.godot.versionFull}</span></header>
+      <p class="note">
+        {godotApi.classes.length} classes and {methods.toLocaleString()} methods, generated
+        from the engine's own API dump. Docs are CC-BY 3.0, so this is mirrored in full.
+      </p>
+    </div>
+  </div>
+
+  <h2>Start here</h2>
+  <ul class="cards">
+    {featured.map((c: any) => (
+      <li class="card">
+        <a href={`/concepts/${c.id}/`}>{c.data.title}</a>
+        <p>{c.data.summary}</p>
+        <MappingBadge kind={c.data.mappingKind} />
+      </li>
+    ))}
+  </ul>
+
+  <p style="margin-top:1.4rem">
+    <a href="/concepts/">All {concepts.length} concepts &rarr;</a>
+    &nbsp;&middot;&nbsp;
+    <a href="/godot/">Browse the Godot API &rarr;</a>
+  </p>
+
+  <div class="callout">
+    <strong>Two engines, deliberately.</strong>
+    Unity to Godot is the migration people are actually making, and a two-column
+    comparison fits on a phone. Adding a third would cost both.
+  </div>
+</Base>

@@ -1,0 +1,121 @@
+---
+import Base from '../../layouts/Base.astro';
+import { godotApi, godotClasses, godotAncestry, godotSubclasses } from '../../lib/engines';
+
+export async function getStaticPaths() {
+  return godotClasses().map((c) => ({ params: { slug: c.slug }, props: { cls: c } }));
+}
+
+const { cls } = Astro.props;
+const ancestry = godotAncestry(cls.name);
+const subclasses = godotSubclasses(cls.name);
+
+const virtuals = cls.methods.filter((m: any) => m.isVirtual);
+const regular = cls.methods.filter((m: any) => !m.isVirtual);
+---
+<Base title={`${cls.name} — Godot ${godotApi.version} — gdref`} description={cls.brief || `${cls.name} class reference for Godot ${godotApi.version}.`}>
+  <article data-pagefind-body>
+    <p style="margin:0 0 .4rem"><a href="/godot/" style="font-size:.86rem">&larr; Godot API</a></p>
+    <h1>{cls.name}</h1>
+
+    <p style="display:flex;gap:6px;flex-wrap:wrap;margin:.2rem 0 1rem">
+      <span class="badge godot">Godot {godotApi.version}</span>
+      {cls.isSingleton && <span class="badge">Singleton</span>}
+      {cls.isRefcounted && <span class="badge">RefCounted</span>}
+      {!cls.isInstantiable && <span class="badge">Abstract</span>}
+    </p>
+
+    {cls.brief && <p class="lede">{cls.brief}</p>}
+
+    {ancestry.length > 0 && (
+      <p style="font-size:.86rem;color:var(--muted)">
+        Inherits: {ancestry.map((a, i) => (
+          <>{i > 0 && ' ‹ '}<a href={`/godot/${a.toLowerCase()}/`}>{a}</a></>
+        ))}
+      </p>
+    )}
+
+    {cls.description && <p>{cls.description}</p>}
+
+    {cls.properties.length > 0 && (
+      <>
+        <h2>Properties ({cls.properties.length})</h2>
+        <div class="table-scroll">
+          <table>
+            <thead><tr><th>Type</th><th>Name</th><th>Setter / getter</th></tr></thead>
+            <tbody>
+              {cls.properties.map((p: any) => (
+                <tr>
+                  <td><code>{p.type}</code></td>
+                  <td><code>{p.name}</code></td>
+                  <td style="color:var(--faint)"><code>{[p.setter, p.getter].filter(Boolean).join(' / ') || '—'}</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    )}
+
+    {virtuals.length > 0 && (
+      <>
+        <h2>Virtual methods ({virtuals.length})</h2>
+        {virtuals.map((m: any) => (
+          <div class="member">
+            <code>{m.signature}</code>
+            {m.description && <p class="desc">{m.description}</p>}
+          </div>
+        ))}
+      </>
+    )}
+
+    {regular.length > 0 && (
+      <>
+        <h2>Methods ({regular.length})</h2>
+        {regular.map((m: any) => (
+          <div class="member">
+            <code>{m.signature}</code>
+            {m.isConst && <span class="badge" style="margin-left:6px">const</span>}
+            {m.description && <p class="desc">{m.description}</p>}
+          </div>
+        ))}
+      </>
+    )}
+
+    {cls.signals.length > 0 && (
+      <>
+        <h2>Signals ({cls.signals.length})</h2>
+        {cls.signals.map((s: any) => (
+          <div class="member"><code>{s.signature}</code></div>
+        ))}
+      </>
+    )}
+
+    {cls.enums.length > 0 && (
+      <>
+        <h2>Enums ({cls.enums.length})</h2>
+        {cls.enums.map((e: any) => (
+          <div class="member">
+            <code>{e.name}{e.isBitfield ? ' (bitfield)' : ''}</code>
+            <p class="desc">{e.values.map((v: any) => `${v.name} = ${v.value}`).join(', ')}</p>
+          </div>
+        ))}
+      </>
+    )}
+
+    {subclasses.length > 0 && (
+      <>
+        <h2>Direct subclasses ({subclasses.length})</h2>
+        <ul class="chips">
+          {subclasses.map((s) => <li><a href={`/godot/${s.toLowerCase()}/`}>{s}</a></li>)}
+        </ul>
+      </>
+    )}
+
+    <hr />
+    <p style="font-size:.84rem;color:var(--faint)">
+      <a href={cls.docsUrl} rel="noopener" target="_blank">Official Godot docs for {cls.name} &nearr;</a>
+      <br />{godotApi.license.attribution}
+    </p>
+  </article>
+</Base>

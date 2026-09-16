@@ -1,0 +1,32 @@
+---
+import { Code } from 'astro:components';
+import { ENGINE_META, localSymbolHref } from '../lib/engines';
+import { inlineMd } from '../lib/inline';
+
+const { binding } = Astro.props;
+const meta = ENGINE_META[binding.engine as 'unity' | 'godot'];
+const localHref = localSymbolHref(binding.engine, binding.symbol);
+---
+<div class="panel">
+  <header>
+    <strong style={`color:${meta.accent}`}>{meta.label}</strong>
+    <span class="badge">{meta.versionFull}</span>
+    {binding.symbol && <code style="font-size:0.76rem;background:none;color:var(--muted)">{binding.symbol}</code>}
+  </header>
+
+  {binding.signature && <div class="sig">{binding.signature}</div>}
+
+  <Code code={binding.snippet.trimEnd()} lang={binding.lang} theme="github-dark-dimmed" wrap />
+
+  {binding.notes && <p class="note" set:html={inlineMd(binding.notes)} />}
+
+  <footer>
+    {localHref && <a href={localHref}>Full API reference &rarr;</a>}
+    {localHref && binding.docsUrl && <span style="color:var(--faint)"> &middot; </span>}
+    {binding.docsUrl && (
+      <a href={binding.docsUrl} rel="noopener nofollow" target="_blank">
+        {binding.license === 'link-only' ? 'Official docs' : 'Godot docs'} &nearr;
+      </a>
+    )}
+  </footer>
+</div>

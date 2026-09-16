@@ -1,0 +1,31 @@
+{
+  "_comment": "Hand-maintained Unity symbol seed. Metadata only — no Unity prose. Modern APIs only (SCOPE.md); legacy symbols belong in src/content/legacy/unity.json.",
+  "symbols": [
+    { "kind": "method", "namespace": "UnityEngine", "type": "MonoBehaviour", "member": "Awake", "signature": "void Awake()", "summary": "Called once when the script instance is loaded, before Start." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "MonoBehaviour", "member": "Start", "signature": "void Start()", "summary": "Called once before the first frame, after Awake and OnEnable." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "MonoBehaviour", "member": "Update", "signature": "void Update()", "summary": "Called once per rendered frame." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "MonoBehaviour", "member": "FixedUpdate", "signature": "void FixedUpdate()", "summary": "Called on the fixed physics timestep, independent of frame rate." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "MonoBehaviour", "member": "OnDestroy", "signature": "void OnDestroy()", "summary": "Called when the object is destroyed." },
+    { "kind": "class", "namespace": "UnityEngine", "type": "GameObject", "summary": "The base entity in a scene; behaviour is attached as components." },
+    { "kind": "class", "namespace": "UnityEngine", "type": "Component", "summary": "Base class for everything attached to a GameObject." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Component", "member": "GetComponent", "signature": "T GetComponent<T>()", "summary": "Retrieves a component of type T attached to the same GameObject." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Object", "member": "Instantiate", "signature": "static T Instantiate<T>(T original, Vector3 position, Quaternion rotation)", "summary": "Clones a prefab or object into the active scene." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Object", "member": "Destroy", "signature": "static void Destroy(Object obj, float t = 0.0f)", "summary": "Destroys an object, optionally after a delay." },
+    { "kind": "class", "namespace": "UnityEngine", "type": "SerializeField", "summary": "Attribute that exposes a private field to the Inspector and serialization." },
+    { "kind": "class", "namespace": "UnityEngine", "type": "Awaitable", "summary": "Unity 6 awaitable type for async/await on the player loop.", "package": "builtin" },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Awaitable", "member": "NextFrameAsync", "signature": "static Awaitable NextFrameAsync(CancellationToken ct = default)", "summary": "Resumes on the next frame." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Awaitable", "member": "WaitForSecondsAsync", "signature": "static Awaitable WaitForSecondsAsync(float seconds, CancellationToken ct = default)", "summary": "Resumes after a delay in scaled time." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Awaitable", "member": "FixedUpdateAsync", "signature": "static Awaitable FixedUpdateAsync(CancellationToken ct = default)", "summary": "Resumes on the next fixed update." },
+    { "kind": "class", "namespace": "UnityEngine", "type": "Physics", "summary": "Global physics queries and settings." },
+    { "kind": "method", "namespace": "UnityEngine", "type": "Physics", "member": "Raycast", "signature": "static bool Raycast(Vector3 origin, Vector3 direction, out RaycastHit hitInfo, float maxDistance)", "summary": "Casts a ray against colliders and reports the first hit." },
+    { "kind": "class", "namespace": "UnityEngine", "type": "RaycastHit", "summary": "Information returned by a successful physics query." },
+    { "kind": "class", "namespace": "UnityEngine.Events", "type": "UnityEvent", "summary": "Serializable event type wireable from the Inspector." },
+    { "kind": "class", "namespace": "UnityEngine.InputSystem", "type": "InputAction", "package": "com.unity.inputsystem", "summary": "A named, rebindable action defined in an Input Action Asset." },
+    { "kind": "method", "namespace": "UnityEngine.InputSystem", "type": "InputAction", "member": "ReadValue", "signature": "T ReadValue<T>() where T : struct", "package": "com.unity.inputsystem", "summary": "Reads the action's current value." },
+    { "kind": "method", "namespace": "UnityEngine.InputSystem", "type": "InputAction", "member": "IsPressed", "signature": "bool IsPressed()", "package": "com.unity.inputsystem", "summary": "True while the action is actuated past its press point." },
+    { "kind": "method", "namespace": "UnityEngine.InputSystem", "type": "InputAction", "member": "WasPressedThisFrame", "signature": "bool WasPressedThisFrame()", "package": "com.unity.inputsystem", "summary": "True on the frame the action became actuated." },
+    { "kind": "class", "namespace": "UnityEngine.InputSystem", "type": "InputActionAsset", "package": "com.unity.inputsystem", "summary": "Project asset holding action maps, actions and their bindings." },
+    { "kind": "class", "namespace": "UnityEngine.InputSystem", "type": "PlayerInput", "package": "com.unity.inputsystem", "summary": "Component that routes an action asset to callbacks on a GameObject." },
+    { "kind": "class", "namespace": "UnityEngine.InputSystem", "type": "InputActionMap", "package": "com.unity.inputsystem", "summary": "A named group of actions that can be enabled or disabled together." }
+  ]
+}

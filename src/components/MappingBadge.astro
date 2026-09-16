@@ -1,0 +1,16 @@
+---
+const { kind } = Astro.props;
+const LABEL: Record<string, string> = {
+  direct: 'Direct',
+  approximate: 'Approximate',
+  none: 'No equivalent',
+  'mental-model': 'Mental model',
+};
+const TITLE: Record<string, string> = {
+  direct: 'Same idea, same shape — swap the call.',
+  approximate: 'Same goal, different shape. Read the notes.',
+  none: 'No first-party equivalent on one side.',
+  'mental-model': 'The engines disagree structurally. Prose, not a table.',
+};
+---
+<span class={`badge ${kind}`} title={TITLE[kind]}>{LABEL[kind]}</span>

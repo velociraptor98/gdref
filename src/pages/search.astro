@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Search — gdref" description="Search concepts, the Godot API, and legacy Unity symbols.">
+  <h1>Search</h1>
+  <p class="lede">
+    Concepts, the full Godot class reference, and legacy Unity symbols. Searching
+    something like <code>Input.GetAxis</code> lands on a pointer to the modern equivalent.
+  </p>
+
+  <!-- Pagefind builds its index from `dist` after `astro build`; the UI is only
+       present in the built site, so `astro dev` will show an empty box. -->
+  <div id="search"></div>
+
+  <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
+  <script is:inline src="/pagefind/pagefind-ui.js"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof PagefindUI === 'undefined') {
+        document.getElementById('search').innerHTML =
+          '<p style="color:var(--muted)">Search index not built. Run <code>npm run build</code>, ' +
+          'then <code>npm run preview</code> — Pagefind indexes the built site.</p>';
+        return;
+      }
+      new PagefindUI({ element: '#search', showSubResults: true, showImages: false });
+    });
+  </script>
+
+  <style is:global>
+    :root {
+      --pagefind-ui-primary: var(--text);
+      --pagefind-ui-text: var(--text);
+      --pagefind-ui-background: var(--bg);
+      --pagefind-ui-border: var(--border);
+      --pagefind-ui-tag: var(--surface);
+      --pagefind-ui-border-radius: var(--radius);
+      --pagefind-ui-font: var(--sans);
+    }
+  </style>
+</Base>

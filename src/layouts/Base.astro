@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+import { ENGINE_META } from '../lib/engines';
+
+interface Props {
+  title: string;
+  description?: string;
+}
+const { title, description } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [
+  ['/concepts/', 'Concepts'],
+  ['/godot/', 'Godot API'],
+  ['/search/', 'Search'],
+];
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🎮</text></svg>" />
+  </head>
+  <body>
+    <header class="site">
+      <div class="wrap">
+        <a class="brand" href="/">gd<span>ref</span></a>
+        <nav>
+          {nav.map(([href, label]) => (
+            <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>
+          ))}
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <slot />
+    </main>
+
+    <footer class="site">
+      <div class="wrap">
+        <p>
+          Godot reference generated from <code>extension_api.json</code> ({ENGINE_META.godot.versionFull}).
+          {ENGINE_META.godot.license.attribution}
+        </p>
+        <p>{ENGINE_META.unity.license.attribution} Tracking {ENGINE_META.unity.versionFull}.</p>
+        <p>Not affiliated with Unity Technologies or the Godot Foundation.</p>
+      </div>
+    </footer>
+  </body>
+</html>

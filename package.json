@@ -1,0 +1,27 @@
+{
+  "name": "gdref",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "node scripts/lint-content.mjs && astro build && pagefind --site dist",
+    "preview": "astro preview",
+    "check": "astro check",
+    "lint:content": "node scripts/lint-content.mjs",
+    "ingest": "npm run ingest:godot && npm run ingest:unity",
+    "ingest:godot": "node scripts/ingest-godot.mjs",
+    "ingest:unity": "node scripts/ingest-unity.mjs"
+  },
+  "dependencies": {
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "pagefind": "^1.1.0"
+  },
+  "allowScripts": {
+    "esbuild@0.27.7": true,
+    "esbuild@0.25.12": true,
+    "sharp@0.34.5": true
+  }
+}

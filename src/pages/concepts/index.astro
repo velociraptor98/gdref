@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import MappingBadge from '../../components/MappingBadge.astro';
+import { CATEGORIES } from '../../content.config';
+
+const concepts = (await getCollection('concepts')).filter((c) => !c.data.draft);
+const LABEL: Record<string, string> = {
+  lifecycle: 'Lifecycle',
+  scripting: 'Language & scripting',
+  'scene-structure': 'Scene structure',
+  input: 'Input',
+  physics: 'Physics',
+  rendering: 'Rendering',
+  ui: 'UI',
+  audio: 'Audio',
+  animation: 'Animation',
+  navigation: 'Navigation',
+  assets: 'Assets',
+  serialization: 'Serialization',
+  events: 'Events',
+  async: 'Async & timing',
+  networking: 'Networking',
+  debugging: 'Debugging',
+  editor: 'Editor tooling',
+};
+const grouped = CATEGORIES
+  .map((cat) => ({
+    cat,
+    items: concepts
+      .filter((c) => c.data.category === cat)
+      .sort((a, b) => a.data.title.localeCompare(b.data.title)),
+  }))
+  .filter((g) => g.items.length > 0);
+---
+<Base title="Concepts — gdref" description="Every Unity ⇄ Godot mapping, by category.">
+  <h1>Concepts</h1>
+  <p class="lede">
+    {concepts.length} mappings. Badges say how well the two engines line up — read the
+    notes on anything that isn't <em>direct</em>.
+  </p>
+
+  {grouped.map((g) => (
+    <>
+      <h2 class="cat">{LABEL[g.cat]}</h2>
+      <ul class="cards">
+        {g.items.map((c) => (
+          <li class="card">
+            <a href={`/concepts/${c.id}/`}>{c.data.title}</a>
+            <p>{c.data.summary}</p>
+            <MappingBadge kind={c.data.mappingKind} />
+          </li>
+        ))}
+      </ul>
+    </>
+  ))}
+</Base>

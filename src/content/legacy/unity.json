@@ -1,0 +1,156 @@
+[
+  {
+    "id": "input-getaxis",
+    "symbol": "Input.GetAxis",
+    "replacedBy": "input-read-vector",
+    "note": "Old Input Manager. Read a Vector2 from an Input System action instead.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input.GetAxis.html"
+  },
+  {
+    "id": "input-getaxisraw",
+    "symbol": "Input.GetAxisRaw",
+    "replacedBy": "input-read-vector",
+    "note": "Old Input Manager. An Input System action with no processors gives the unsmoothed value.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input.GetAxisRaw.html"
+  },
+  {
+    "id": "input-getkey",
+    "symbol": "Input.GetKey",
+    "replacedBy": "input-button-state",
+    "note": "Old Input Manager. Bind a key to an action and use action.IsPressed().",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input.GetKey.html"
+  },
+  {
+    "id": "input-getkeydown",
+    "symbol": "Input.GetKeyDown",
+    "replacedBy": "input-button-state",
+    "note": "Old Input Manager. Use action.WasPressedThisFrame().",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input.GetKeyDown.html"
+  },
+  {
+    "id": "input-getbutton",
+    "symbol": "Input.GetButton",
+    "replacedBy": "input-button-state",
+    "note": "Old Input Manager. Use action.IsPressed().",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input.GetButton.html"
+  },
+  {
+    "id": "input-getbuttondown",
+    "symbol": "Input.GetButtonDown",
+    "replacedBy": "input-button-state",
+    "note": "Old Input Manager. Use action.WasPressedThisFrame().",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input.GetButtonDown.html"
+  },
+  {
+    "id": "input-mouseposition",
+    "symbol": "Input.mousePosition",
+    "replacedBy": "input-read-vector",
+    "note": "Old Input Manager. Use Mouse.current.position.ReadValue() or a Vector2 action.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Input-mousePosition.html"
+  },
+  {
+    "id": "startcoroutine",
+    "symbol": "MonoBehaviour.StartCoroutine",
+    "replacedBy": "wait-for-seconds",
+    "note": "Superseded by async/await over Awaitable in Unity 6. Coroutines still work but are no longer the idiomatic path.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html"
+  },
+  {
+    "id": "waitforseconds",
+    "symbol": "WaitForSeconds",
+    "replacedBy": "wait-for-seconds",
+    "note": "Coroutine yield instruction. Use await Awaitable.WaitForSecondsAsync(n).",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/WaitForSeconds.html"
+  },
+  {
+    "id": "waitforendofframe",
+    "symbol": "WaitForEndOfFrame",
+    "replacedBy": "next-frame",
+    "note": "Coroutine yield instruction. Use await Awaitable.EndOfFrameAsync().",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/WaitForEndOfFrame.html"
+  },
+  {
+    "id": "ongui",
+    "symbol": "MonoBehaviour.OnGUI",
+    "replacedBy": "ui-layout",
+    "note": "IMGUI is out of scope for runtime UI. Use UI Toolkit or uGUI.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/MonoBehaviour.OnGUI.html"
+  },
+  {
+    "id": "application-loadlevel",
+    "symbol": "Application.LoadLevel",
+    "replacedBy": "scene-loading",
+    "note": "Removed. Use SceneManager.LoadScene.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Application.LoadLevel.html"
+  },
+  {
+    "id": "findobjectsoftype",
+    "symbol": "Object.FindObjectsOfType",
+    "replacedBy": "find-nodes",
+    "note": "Deprecated in Unity 6. Use FindObjectsByType, or FindFirstObjectByType for a single result.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Object.FindObjectsOfType.html"
+  },
+  {
+    "id": "findobjectoftype",
+    "symbol": "Object.FindObjectOfType",
+    "replacedBy": "find-nodes",
+    "note": "Deprecated in Unity 6. Use FindFirstObjectByType or FindAnyObjectByType.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Object.FindObjectOfType.html"
+  },
+  {
+    "id": "rigidbody-velocity",
+    "symbol": "Rigidbody.velocity",
+    "replacedBy": "character-movement",
+    "note": "Renamed in Unity 6. Use Rigidbody.linearVelocity.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Rigidbody-linearVelocity.html"
+  },
+  {
+    "id": "resources-load",
+    "symbol": "Resources.Load",
+    "replacedBy": "load-resource",
+    "note": "Discouraged: everything under a Resources/ folder ships and loads whether used or not. Use Addressables.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Resources.Load.html"
+  },
+  {
+    "id": "unity-networking",
+    "symbol": "UnityEngine.Networking",
+    "replacedBy": "multiplayer",
+    "note": "UNet was removed. Netcode for GameObjects is the current Unity answer; Godot's equivalent is built into the engine.",
+    "docsUrl": "https://docs-multiplayer.unity3d.com/netcode/current/about/"
+  },
+  {
+    "id": "networkview",
+    "symbol": "NetworkView",
+    "replacedBy": "multiplayer",
+    "note": "Removed with the legacy networking system. See the modern multiplayer mapping.",
+    "docsUrl": "https://docs-multiplayer.unity3d.com/netcode/current/about/"
+  },
+  {
+    "id": "animation-component",
+    "symbol": "Animation",
+    "replacedBy": "animation-state",
+    "note": "The legacy animation component. Use Animator; Godot's equivalent is AnimationPlayer.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Animation.html"
+  },
+  {
+    "id": "rigidbody2d-velocity",
+    "symbol": "Rigidbody2D.velocity",
+    "replacedBy": "rigidbody-physics",
+    "note": "Renamed in Unity 6. Use Rigidbody2D.linearVelocity.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/Rigidbody2D-linearVelocity.html"
+  },
+  {
+    "id": "particleemitter",
+    "symbol": "ParticleEmitter",
+    "replacedBy": "particles",
+    "note": "The pre-Shuriken particle system, long removed. Use ParticleSystem.",
+    "docsUrl": "https://docs.unity3d.com/ScriptReference/ParticleSystem.html"
+  },
+  {
+    "id": "guitext",
+    "symbol": "GUIText",
+    "replacedBy": "ui-text",
+    "note": "Removed along with the legacy GUI system. Use TextMeshPro; Godot's equivalent is Label.",
+    "docsUrl": "https://docs.unity3d.com/Packages/com.unity.textmeshpro@latest/index.html"
+  }
+]
