@@ -1,0 +1,18 @@
+# Read by Netlify and Cloudflare Pages. Other hosts need their own equivalent.
+
+# Pagefind's index uses extensions no host recognises (.pf_fragment, .pf_index,
+# .pf_meta, and the WASM deliberately named *.pagefind). They are content-hashed
+# and immutable within a deploy, but they MUST be served as-is — a host that
+# rewrites, minifies or 404s unknown extensions breaks search silently: the box
+# renders, typing returns nothing, and no error appears in the console.
+/pagefind/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY

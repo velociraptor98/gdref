@@ -1,0 +1,138 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import { RECIPE_GROUPS } from '../../content.config';
+import { ENGINE_META } from '../../lib/engines';
+
+const LABEL: Record<string, string> = {
+  movement: 'Movement',
+  input: 'Input',
+  scene: 'Scenes & nodes',
+  timing: 'Timing',
+  physics: 'Physics',
+  ui: 'UI',
+  camera: 'Camera',
+  audio: 'Audio',
+  data: 'Saving & settings',
+  effects: 'Effects',
+  debug: 'Debugging',
+};
+
+const all = (await getCollection('recipes')).filter((r) => !r.data.draft);
+
+// Render every body up front — they all live on this one page.
+const rendered = await Promise.all(
+  all.map(async (r) => ({ ...r, Content: (await render(r)).Content }))
+);
+
+const groups = RECIPE_GROUPS.map((group) => ({
+  group,
+  label: LABEL[group],
+  items: rendered
+    .filter((r) => r.data.group === group)
+    .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title)),
+})).filter((g) => g.items.length > 0);
+
+const concepts = await getCollection('concepts');
+const conceptTitle = (id: string) => concepts.find((c) => c.id === id)?.data.title ?? id;
+---
+<Base
+  title="Godot recipes — gdref"
+  description="Copy-paste solutions to the things every Godot project needs."
+>
+  <h1>Godot recipes</h1>
+  <p class="lede">
+    {all.length} solutions to the things every project needs, written for
+    {ENGINE_META.godot.versionFull.replace('Godot Engine ', 'Godot ')}. Godot only —
+    no comparison, just code that works.
+  </p>
+
+  <nav class="jump" aria-label="Recipe categories">
+    {groups.map((g) => <a href={`#${g.group}`}>{g.label}</a>)}
+  </nav>
+
+  <div data-pagefind-body>
+    {groups.map((g) => (
+      <section class="recipe-group">
+        <h2 id={g.group} class="group-head">{g.label}</h2>
+
+        {g.items.map((r) => (
+          <article class="recipe" id={r.id}>
+            <h3>
+              <a href={`#${r.id}`} class="anchor" aria-label="Link to this recipe">#</a>
+              {r.data.title}
+            </h3>
+            <p class="problem">{r.data.summary}</p>
+            <r.Content />
+            {r.data.related.length > 0 && (
+              <p class="rel">
+                Background:{' '}
+                {r.data.related.map((id: string, i: number) => (
+                  <>
+                    {i > 0 && ', '}
+                    <a href={`/concepts/${id}/`}>{conceptTitle(id)}</a>
+                  </>
+                ))}
+              </p>
+            )}
+          </article>
+        ))}
+      </section>
+    ))}
+  </div>
+
+  <style>
+    .jump {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 0 0 2.4rem;
+      padding-bottom: 1.2rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .jump a {
+      font-size: 0.8rem;
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      text-decoration: none;
+      color: var(--muted);
+      background: var(--surface);
+    }
+    .jump a:hover { color: var(--accent); border-color: var(--accent); }
+
+    .group-head {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+      font-weight: 650;
+      margin: 3rem 0 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      scroll-margin-top: 72px;
+    }
+    .recipe-group:first-child .group-head { margin-top: 0; }
+
+    .recipe { padding: 1.6rem 0 0.4rem; scroll-margin-top: 72px; }
+    .recipe + .recipe { border-top: 1px solid var(--border); margin-top: 1.4rem; }
+    .recipe h3 { margin: 0 0 0.2rem; font-size: 1.06rem; }
+    .recipe .problem { color: var(--muted); margin: 0 0 0.9rem; font-size: 0.92rem; }
+    .recipe :global(p) { font-size: 0.93rem; }
+    .recipe :global(pre) { margin: 0.9rem 0; }
+
+    .anchor {
+      color: var(--faint);
+      text-decoration: none;
+      font-weight: 400;
+      margin-left: -1.1em;
+      padding-right: 0.35em;
+      opacity: 0;
+      transition: opacity 0.12s;
+    }
+    .recipe:hover .anchor, .anchor:focus { opacity: 1; }
+    @media (max-width: 700px) { .anchor { display: none; } }
+
+    .rel { font-size: 0.84rem; color: var(--faint); margin: 0.9rem 0 0; }
+  </style>
+</Base>

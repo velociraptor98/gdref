@@ -1,11 +1,11 @@
 ---
 import Base from '../layouts/Base.astro';
 ---
-<Base title="Search — gdref" description="Search concepts, the Godot API, and legacy Unity symbols.">
+<Base title="Search — gdref" description="Search concepts, Godot recipes, and legacy Unity symbols.">
   <h1>Search</h1>
   <p class="lede">
-    Concepts, the full Godot class reference, and legacy Unity symbols. Searching
-    something like <code>Input.GetAxis</code> lands on a pointer to the modern equivalent.
+    Concepts, recipes, and legacy Unity symbols. Searching something like
+    <code>Input.GetAxis</code> lands on a pointer to the modern equivalent.
   </p>
 
   <!-- Pagefind builds its index from `dist` after `astro build`; the UI is only
@@ -27,14 +27,61 @@ import Base from '../layouts/Base.astro';
   </script>
 
   <style is:global>
-    :root {
-      --pagefind-ui-primary: var(--text);
+    /*
+      Pagefind ships its own stylesheet, and its <link> loads after Astro's
+      bundle. It sets these variables on `:root` — same specificity as ours —
+      so on source order alone Pagefind wins, and result text falls back to its
+      default #393939. Against the dark theme's #16171a page that is dark-on-dark.
+
+      Scoping to `#search` (an ID, 1-0-0) beats `:root` (0-1-0) outright, so the
+      override no longer depends on load order. The custom properties inherit to
+      every element Pagefind renders inside the container.
+    */
+    #search {
+      --pagefind-ui-scale: 0.95;
+      --pagefind-ui-primary: var(--accent);
       --pagefind-ui-text: var(--text);
-      --pagefind-ui-background: var(--bg);
+      --pagefind-ui-background: var(--surface);
       --pagefind-ui-border: var(--border);
       --pagefind-ui-tag: var(--surface);
+      --pagefind-ui-border-width: 1px;
       --pagefind-ui-border-radius: var(--radius);
       --pagefind-ui-font: var(--sans);
     }
+
+    /* Results as cards, so they read as distinct rows against the page. */
+    #search .pagefind-ui__result {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 13px 16px;
+      margin-bottom: 10px;
+    }
+    #search .pagefind-ui__result:last-of-type { border-bottom: 1px solid var(--border); }
+
+    #search .pagefind-ui__result-title .pagefind-ui__result-link { color: var(--text); }
+    #search .pagefind-ui__result-title .pagefind-ui__result-link:hover { color: var(--accent); }
+    #search .pagefind-ui__result-excerpt { color: var(--muted); }
+
+    /* Sub-results (recipe anchors, concept headings) sit one level down. */
+    #search .pagefind-ui__result-nested .pagefind-ui__result-link { color: var(--muted); }
+    #search .pagefind-ui__result-nested .pagefind-ui__result-link:hover { color: var(--accent); }
+
+    /* The browser default <mark> is black-on-yellow, which fights both themes. */
+    #search mark {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      border-radius: 3px;
+      padding: 0 2px;
+    }
+
+    #search .pagefind-ui__search-input {
+      color: var(--text);
+      border-color: var(--border);
+    }
+    #search .pagefind-ui__search-input::placeholder { color: var(--faint); }
+    #search .pagefind-ui__search-clear { color: var(--muted); background: transparent; }
+    #search .pagefind-ui__message { color: var(--muted); }
   </style>
 </Base>

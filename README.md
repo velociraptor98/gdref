@@ -1,7 +1,7 @@
 # gdref
 
-A Rosetta stone and script reference for developers moving between **Unity 6**
-and **Godot 4**.
+A Rosetta stone for developers moving between **Unity 6** and **Godot 4**, plus
+a page of Godot recipes for the things every project needs.
 
 No database, no backend. Content lives in the repo, the build produces static
 HTML, and search runs client-side against a Pagefind index. Git is the database;
@@ -20,40 +20,99 @@ npm run lint:content  # cross-reference check on its own
 `npm run dev` is fine for authoring content, but the search page will be empty:
 Pagefind indexes the *built* site.
 
+## Deploying
+
+Static output, no server. Build `npm run build`, publish `dist`.
+
+| Setting | Value |
+| --- | --- |
+| Build command | `npm run build` |
+| Publish directory | `dist` |
+| Node version | 20.11+ (`.nvmrc` pins 22; `engines` enforces the floor) |
+| Env var | `SITE_URL=https://your-real-domain` |
+
+**Set `SITE_URL`.** It drives `<link rel="canonical">`, Open Graph URLs and the
+sitemap. Without it the build falls back to a placeholder origin, which is wrong
+unless you happen to own it.
+
+### The one that breaks silently
+
+Pagefind's index uses extensions no host recognises — `.pf_fragment`,
+`.pf_index`, `.pf_meta`, and a WASM binary deliberately named `*.pagefind`. A
+host that rewrites, minifies or 404s unknown extensions breaks search with **no
+error**: the box renders, typing returns nothing, the console stays clean.
+
+After the first deploy, load `/search/` and search something. If results are
+empty, check the network tab for a 404 under `/pagefind/`.
+
+`public/_headers` handles this for Netlify and Cloudflare Pages. Other hosts
+need their own equivalent.
+
+### Per-host notes
+
+- **Cloudflare Pages / Netlify** — works as-is. `_headers` is read automatically.
+- **Vercel** — needs `"trailingSlash": true` in `vercel.json` to match the Astro
+  config, otherwise every URL redirects once. `_headers` is ignored; use
+  `headers` in `vercel.json`.
+- **GitHub Pages** — if you deploy to `<user>.github.io/gdref/` rather than a
+  custom domain, set `base: '/gdref/'` in `astro.config.mjs`. Every internal
+  link here is root-absolute (`/concepts/`) and will 404 without it. `_headers`
+  is ignored; Pages serves unknown extensions fine, so search still works.
+
+### Build-time gotchas already handled
+
+- **npm 11+ blocks install scripts.** `esbuild` and `sharp` need theirs, and the
+  approvals are committed in `package.json` under `allowScripts`, so CI works
+  without interaction. `fsevents` is left unapproved on purpose — macOS-only dev
+  file-watching, never installed on Linux.
+- **Platform binaries.** `pagefind`, `esbuild` and `sharp` ship per-platform
+  optional deps. The lockfile carries the Linux arm64/x64 variants, so `npm ci`
+  resolves on CI even though it was generated on macOS.
+- **No client JS.** The 616 KB Godot API index is build-time only and never
+  reaches the browser; verify with `find dist -name '*.js' -not -path '*/pagefind/*'`.
+
 ## Layout
 
 ```
 src/
   content.config.ts        Zod schemas — and where the licensing invariant is enforced
   content/
-    concepts/*.md          Hand-authored Rosetta entries (the actual product)
+    concepts/*.md          Unity <-> Godot comparisons (the Rosetta layer)
+    recipes/*.md           Godot-only how-tos, all rendered onto /recipes/
     legacy/unity.json      Legacy Unity symbols as searchable redirect stubs
   data/
-    godot/4.4.json         Generated. Committed on purpose — see below.
+    godot/api-index.json   Generated. Names only, for validation — not published.
     unity/6.json           Generated. Metadata only.
   lib/                     Data access + inline-markdown helper
   pages/
     concepts/[id].astro    Side-by-side concept pages
-    godot/[slug].astro     952 generated class pages
+    recipes/index.astro    One page, grouped and anchored
     legacy/[id].astro      Thin "this was replaced by" stubs
     search.astro           Pagefind UI
 scripts/
-  ingest-godot.mjs         extension_api.json -> src/data/godot/
+  ingest-godot.mjs         extension_api.json -> name index for validation
   ingest-unity.mjs         symbol index -> src/data/unity/
-  lint-content.mjs         cross-reference checks Zod cannot express
+  lint-content.mjs         cross-reference + Godot API validation
 SCOPE.md                   What is in scope, what is not, and why
 ```
 
-## Why generated data is committed
+## Why the Godot API is still ingested
 
-`src/data/` is build output, but it is checked in deliberately:
+There is no API browser here — docs.godotengine.org does that better, and
+mirroring 952 class pages added pages without adding value.
 
-- Builds are reproducible without network access.
-- Diffing `godot/4.4.json` against a future `4.5.json` gives you an "what changed
-  between versions" page for free.
-- CI does not need a Godot binary.
+What the dump is kept for is **validating our own work**. `npm run ingest:godot`
+emits a name-only index (~600 KB, no signatures, no prose) and the linter uses it
+to check that every Godot symbol cited in a concept, and every class and
+`Class.MEMBER` reference in a recipe, actually exists in Godot 4.4.
 
-Re-run `npm run ingest` when you bump an engine version, and review the diff.
+It is committed so builds are reproducible offline and CI needs no Godot binary.
+Re-run `npm run ingest` when bumping an engine version and review the diff —
+members that disappear are exactly the content that needs updating.
+
+The check is deliberately limited to unambiguous forms. `cooldown.is_stopped()`
+on a local variable is not checked, because resolving that needs real type
+inference; `Timer.is_stopped` and `extends Timer` are.
 
 ## Content rules the build enforces
 
@@ -74,6 +133,8 @@ Zod cannot see across files:
 - a legacy stub whose `replacedBy` concept is missing, or a duplicate stub id
 - a legacy stub whose note admits the API is *not* deprecated — it would render
   a "Legacy" badge on current API. Cover those in a concept instead.
+- a Godot `symbol` on a concept binding that does not exist in the engine
+- an unknown Godot class, or a bad `Class.MEMBER`, in recipe GDScript
 
 ## What counts as legacy
 
@@ -82,6 +143,18 @@ so a reader with old code on screen finds a pointer to the modern concept. An
 API that is merely *different in Godot* is not legacy — it belongs in a concept
 binding. `PlayerPrefs`, `DontDestroyOnLoad` and `OnDrawGizmos` all failed this
 test during authoring and were moved out; the linter now enforces it.
+
+## Adding a recipe
+
+Drop a Markdown file in `src/content/recipes/`. Frontmatter is `title`, `group`
+(one of the 11 in `RECIPE_GROUPS`), `summary` — phrased the way someone would
+search for the problem — and optionally `order` and `related` concept ids. The
+body is the recipe: a `gdscript` fence and a short note on the part that bites.
+
+They all render onto `/recipes/`, sorted by `order` then title.
+
+Concept or recipe? If the page explains a *difference between engines*, it is a
+concept. If it hands over *code for a task*, it is a recipe.
 
 ## Adding a concept
 

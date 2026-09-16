@@ -25,7 +25,7 @@ bindings:
       wireable in the Inspector; a C# event is faster and type-safe but
       invisible to designers.
   - engine: godot
-    symbol: Object.signal
+    symbol: Signal.emit
     signature: 'signal damaged(amount: int)'
     docsUrl: https://docs.godotengine.org/en/4.4/tutorials/scripting/gdscript/gdscript_basics.html#signals
     snippet: |

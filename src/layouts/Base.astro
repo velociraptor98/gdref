@@ -8,9 +8,11 @@ interface Props {
 }
 const { title, description } = Astro.props;
 const path = Astro.url.pathname;
+// Astro.site is undefined if `site` is unset in the config, so guard the joins.
+const canonical = Astro.site ? new URL(path, Astro.site).href : undefined;
 const nav = [
   ['/concepts/', 'Concepts'],
-  ['/godot/', 'Godot API'],
+  ['/recipes/', 'Recipes'],
   ['/search/', 'Search'],
 ];
 ---
@@ -21,6 +23,18 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
+    {canonical && <link rel="canonical" href={canonical} />}
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="gdref" />
+    <meta property="og:title" content={title} />
+    {description && <meta property="og:description" content={description} />}
+    {canonical && <meta property="og:url" content={canonical} />}
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    {description && <meta name="twitter:description" content={description} />}
+    <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16171a" media="(prefers-color-scheme: dark)" />
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🎮</text></svg>" />
   </head>
   <body>
@@ -42,8 +56,8 @@ const nav = [
     <footer class="site">
       <div class="wrap">
         <p>
-          Godot reference generated from <code>extension_api.json</code> ({ENGINE_META.godot.versionFull}).
-          {ENGINE_META.godot.license.attribution}
+          Godot examples target {ENGINE_META.godot.versionFull} and are checked against the
+          engine's own API index. {ENGINE_META.godot.license.attribution}
         </p>
         <p>{ENGINE_META.unity.license.attribution} Tracking {ENGINE_META.unity.versionFull}.</p>
         <p>Not affiliated with Unity Technologies or the Godot Foundation.</p>

@@ -7,8 +7,19 @@ it gets settled here first, then in content.
 
 | Engine | Line tracked | Docs license | Content we ship |
 | --- | --- | --- | --- |
-| Godot | 4.x (version-keyed) | CC-BY 3.0 — mirrorable with attribution | Full text, full symbol pages |
+| Godot | 4.x (version-keyed) | CC-BY 3.0 — mirrorable with attribution | Our own prose and code, freely quoted |
 | Unity  | Unity 6 (pinned)    | Proprietary, no redistribution        | Symbol metadata + our prose + outbound link |
+
+## We do not mirror the Godot API
+
+An earlier version generated a page per Godot class — 952 of them. It was
+dropped: docs.godotengine.org already does that, better, and a mirror added
+pages without adding value.
+
+The API dump is still ingested, but only as a **name index for validation**
+(`src/data/godot/api-index.json`, ~600 KB of names). The linter checks that every
+Godot symbol we cite, and every class and `Class.MEMBER` reference in a recipe,
+actually exists in the engine. That is what the data is for now.
 
 Godot is version-keyed because 4.x signatures move between minors.
 Unity is pinned to one line, so the `version` field carries a single value and
@@ -41,6 +52,20 @@ wrong in a way users notice immediately.
 **DOTS / Entities is out.** It is a parallel paradigm, not the modern version
 of MonoBehaviour, and Godot has no counterpart. Every row would be an empty
 cell.
+
+## Two content types
+
+**Concepts** compare the engines. Every concept is a Unity binding beside a
+Godot binding, plus directional porting notes. They answer "how do I say this
+in the other engine".
+
+**Recipes** are Godot-only. No comparison, no Unity column — just working code
+for a task someone actually needs (screen shake, save files, coyote time). They
+answer "how do I do this at all". All render onto the single `/recipes/` page,
+grouped and anchored, so it reads as a cheatsheet.
+
+If a page is explaining a difference, it is a concept. If it is handing over
+code, it is a recipe.
 
 ## Legacy symbols are indexed, never featured
 

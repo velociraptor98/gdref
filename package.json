@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
   "scripts": {
     "dev": "astro dev",
     "build": "node scripts/lint-content.mjs && astro build && pagefind --site dist",
@@ -14,6 +17,7 @@
     "ingest:unity": "node scripts/ingest-unity.mjs"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
     "astro": "^5.0.0"
   },
   "devDependencies": {

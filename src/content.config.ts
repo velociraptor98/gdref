@@ -125,6 +125,40 @@ const concepts = defineCollection({
     }),
 });
 
+export const RECIPE_GROUPS = [
+  'movement',
+  'input',
+  'scene',
+  'timing',
+  'physics',
+  'ui',
+  'camera',
+  'audio',
+  'data',
+  'effects',
+  'debug',
+] as const;
+
+/**
+ * Godot-only how-tos. Unlike concepts these make no comparison — they answer
+ * "how do I do X in Godot" with code you can paste. All render onto the single
+ * /recipes/ page, grouped and anchored.
+ */
+const recipes = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/recipes' }),
+  schema: z.object({
+    title: z.string(),
+    group: z.enum(RECIPE_GROUPS),
+    /** The problem, phrased as the reader would search for it. */
+    summary: z.string(),
+    /** Sort key within a group; lower first, then alphabetical. */
+    order: z.number().default(50),
+    /** Concept ids this recipe illustrates. */
+    related: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
 /**
  * Legacy Unity symbols. Searchable so the reader with old code on screen finds
  * something, but deliberately absent from tables and browse pages (SCOPE.md).
@@ -140,4 +174,4 @@ const legacy = defineCollection({
   }),
 });
 
-export const collections = { concepts, legacy };
+export const collections = { concepts, recipes, legacy };

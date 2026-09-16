@@ -2,42 +2,44 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import MappingBadge from '../components/MappingBadge.astro';
-import { ENGINE_META, godotApi } from '../lib/engines';
+import { ENGINE_META } from '../lib/engines';
 
 const concepts = (await getCollection('concepts')).filter((c) => !c.data.draft);
-const featured = ['per-frame-update', 'input-actions', 'spawn-object', 'components-vs-nodes']
+const recipes = (await getCollection('recipes')).filter((r) => !r.data.draft);
+const categories = new Set(concepts.map((c) => c.data.category)).size;
+
+const featured = ['components-vs-nodes', 'input-actions', 'character-movement', 'gdscript-vs-csharp']
   .map((id) => concepts.find((c) => c.id === id))
   .filter(Boolean);
-const methods = godotApi.classes.reduce((n, c) => n + c.methods.length, 0);
 ---
 <Base
   title="gdref — Unity ⇄ Godot reference"
-  description="A Rosetta stone and script reference for developers moving between Unity 6 and Godot 4."
+  description="A Rosetta stone for developers moving between Unity 6 and Godot 4, plus Godot recipes for common tasks."
 >
   <h1>Unity &rlarr; Godot, side by side</h1>
   <p class="lede">
     You know how to do it in one engine. This tells you how to say it in the other —
-    with the full Godot script reference underneath, and honest notes where the two
-    do not line up.
+    with honest notes where the two do not line up, and a pile of Godot recipes for
+    when you just need the code.
   </p>
 
   <div class="pair">
     <div class="panel">
-      <header><strong style="color:var(--unity)">{ENGINE_META.unity.label}</strong>
-        <span class="badge">{ENGINE_META.unity.versionFull}</span></header>
+      <header><strong>Concepts</strong><span class="badge">{concepts.length}</span></header>
       <p class="note">
-        Modern APIs only — Input System, <code>Awaitable</code>, URP. Legacy symbols are
-        searchable but never featured. Docs are proprietary, so pages carry our own prose
-        and link out for the full text.
+        Side-by-side mappings across {categories} categories, each labelled with how
+        closely the two engines actually line up. Read the notes on anything that is
+        not <em>direct</em>.
       </p>
+      <footer><a href="/concepts/">Browse concepts &rarr;</a></footer>
     </div>
     <div class="panel">
-      <header><strong style="color:var(--godot)">{ENGINE_META.godot.label}</strong>
-        <span class="badge">{ENGINE_META.godot.versionFull}</span></header>
+      <header><strong>Recipes</strong><span class="badge">{recipes.length}</span></header>
       <p class="note">
-        {godotApi.classes.length} classes and {methods.toLocaleString()} methods, generated
-        from the engine's own API dump. Docs are CC-BY 3.0, so this is mirrored in full.
+        Godot-only solutions to the things every project needs — movement, save files,
+        screen shake, pause menus. No comparison, just code that works.
       </p>
+      <footer><a href="/recipes/">Browse recipes &rarr;</a></footer>
     </div>
   </div>
 
@@ -52,10 +54,16 @@ const methods = godotApi.classes.reduce((n, c) => n + c.methods.length, 0);
     ))}
   </ul>
 
-  <p style="margin-top:1.4rem">
-    <a href="/concepts/">All {concepts.length} concepts &rarr;</a>
-    &nbsp;&middot;&nbsp;
-    <a href="/godot/">Browse the Godot API &rarr;</a>
+  <h2>Scope</h2>
+  <p>
+    <strong>{ENGINE_META.unity.versionFull}</strong>, modern APIs only — Input System,
+    <code>Awaitable</code>, URP. Legacy symbols like <code>Input.GetAxis</code> stay
+    searchable and point at the current equivalent, but never appear in the tables.
+  </p>
+  <p>
+    <strong>{ENGINE_META.godot.versionFull.replace('Godot Engine ', 'Godot ')}</strong>.
+    Every Godot symbol quoted here is checked against the engine's own API index at
+    build time, so signatures cannot quietly rot between releases.
   </p>
 
   <div class="callout">

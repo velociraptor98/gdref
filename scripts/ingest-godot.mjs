@@ -1,14 +1,17 @@
 #!/usr/bin/env node
 /**
- * Ingest Godot's extension API dump into a slim, committed JSON file.
+ * Build a name-only index of Godot's API, used to VALIDATE content.
  *
- * Source of truth is `extension_api.json` — the same dump `godot
- * --dump-extension-api` produces, published per-branch in godot-cpp. It gives
- * every class, method, signal, property and enum, fully typed.
+ * We no longer publish an API browser — docs.godotengine.org does that better,
+ * and mirroring it added pages without adding value. What the API dump is still
+ * worth keeping for is checking our own work: every `symbol` we cite in a
+ * concept or recipe should actually exist in the engine.
  *
- * Godot docs are CC-BY 3.0, so unlike Unity we can mirror freely. Prose lives
- * in `doc/classes/*.xml` in the engine repo; pass --docs to merge it in from a
- * local checkout. Without it you still get the complete structural API.
+ * So this emits names only (no signatures, no prose), which is a few hundred KB
+ * instead of several MB. `scripts/lint-content.mjs` reads it.
+ *
+ * Source is `extension_api.json` — the dump `godot --dump-extension-api`
+ * produces, published per-branch in godot-cpp.
  *
  *   node scripts/ingest-godot.mjs                        # default branch
  *   node scripts/ingest-godot.mjs --branch 4.3
@@ -122,58 +125,40 @@ async function loadApi() {
 }
 
 async function main() {
-  console.log('godot: ingesting extension API');
+  console.log('godot: building API name index');
   const api = await loadApi();
   const h = api.header;
   const version = `${h.version_major}.${h.version_minor}`;
-  const docs = await loadDocs(arg('docs'));
 
   const singletons = new Set(api.singletons.map((s) => s.type));
 
-  const classes = api.classes.map((c) => {
-    const doc = docs.get(c.name);
-    return {
-      name: c.name,
-      inherits: c.inherits ?? null,
-      apiType: c.api_type,
-      isRefcounted: !!c.is_refcounted,
-      isInstantiable: !!c.is_instantiable,
-      isSingleton: singletons.has(c.name),
-      docsUrl: docsUrlFor(version, c.name),
-      brief: doc?.brief ?? '',
-      description: doc?.full ?? '',
-      methods: (c.methods ?? []).map((m) => ({
-        name: m.name,
-        signature: renderMethod(m),
-        isVirtual: !!m.is_virtual,
-        isStatic: !!m.is_static,
-        isConst: !!m.is_const,
-        returnType: cleanType(m.return_value?.type),
-        description: doc?.members.get(m.name) ?? '',
-        // Godot documents virtuals (`_process`, `_ready`, ...) under a
-        // `private-method` anchor rather than `method`.
-        docsUrl: docsUrlFor(version, c.name, m.is_virtual ? 'private-method' : 'method', m.name),
-      })),
-      signals: (c.signals ?? []).map((s) => ({
-        name: s.name,
-        signature: `signal ${s.name}(${renderArgs(s.arguments)})`,
-        docsUrl: docsUrlFor(version, c.name, 'signal', s.name),
-      })),
-      properties: (c.properties ?? []).map((p) => ({
-        name: p.name,
-        type: cleanType(p.type),
-        setter: p.setter ?? null,
-        getter: p.getter ?? null,
-      })),
-      enums: (c.enums ?? []).map((e) => ({
-        name: e.name,
-        isBitfield: !!e.is_bitfield,
-        values: e.values.map((v) => ({ name: v.name, value: v.value })),
-      })),
+  /** Short keys keep the committed file small: m/p/s/c = methods/properties/signals/constants. */
+  const classes = {};
+  for (const c of api.classes) {
+    classes[c.name] = {
+      m: (c.methods ?? []).map((x) => x.name),
+      p: (c.properties ?? []).map((x) => x.name),
+      s: (c.signals ?? []).map((x) => x.name),
+      // Enum VALUES are folded in with constants: in GDScript both are reached
+      // as `Class.NAME`, which is what the linter validates.
+      c: [
+        ...(c.constants ?? []).map((x) => x.name),
+        ...(c.enums ?? []).flatMap((e) => e.values.map((v) => v.name)),
+      ],
+      e: (c.enums ?? []).map((x) => x.name),
+      ...(singletons.has(c.name) ? { singleton: 1 } : {}),
+      ...(c.inherits ? { inherits: c.inherits } : {}),
     };
-  });
+  }
 
-  classes.sort((a, b) => a.name.localeCompare(b.name));
+  const builtins = {};
+  for (const b of api.builtin_classes ?? []) {
+    builtins[b.name] = {
+      m: (b.methods ?? []).map((x) => x.name),
+      p: (b.members ?? []).map((x) => x.name),
+      c: (b.constants ?? []).map((x) => x.name),
+    };
+  }
 
   const out = {
     engine: 'godot',
@@ -187,24 +172,27 @@ async function main() {
       attribution: 'Godot Engine documentation, CC-BY 3.0. Engine is MIT.',
       url: 'https://docs.godotengine.org/en/stable/about/complying_with_licenses.html',
     },
-    hasProse: docs.size > 0,
     classes,
+    builtins,
+    utility: (api.utility_functions ?? []).map((f) => f.name),
+    globalEnums: (api.global_enums ?? []).map((e) => e.name),
+    globalConstants: (api.global_constants ?? []).map((c) => c.name),
   };
 
   await mkdir(OUT_DIR, { recursive: true });
-  const dest = path.join(OUT_DIR, `${version}.json`);
+  const dest = path.join(OUT_DIR, 'api-index.json');
   await writeFile(dest, JSON.stringify(out));
 
-  const methods = classes.reduce((n, c) => n + c.methods.length, 0);
-  const signals = classes.reduce((n, c) => n + c.signals.length, 0);
+  const members = Object.values(classes).reduce(
+    (n, c) => n + c.m.length + c.p.length + c.s.length,
+    0
+  );
   const kb = Math.round((await readFile(dest)).length / 1024);
   console.log(
-    `  ${out.versionFull}: ${classes.length} classes, ${methods} methods, ` +
-      `${signals} signals -> ${dest} (${kb} KB)`
+    `  ${out.versionFull}: ${Object.keys(classes).length} classes, ` +
+      `${Object.keys(builtins).length} builtins, ${members} members, ` +
+      `${out.utility.length} utility functions -> ${dest} (${kb} KB)`
   );
-  if (!out.hasProse) {
-    console.log('  note: structural only. Pass --docs <godot>/doc/classes to merge prose.');
-  }
 }
 
 main().catch((e) => {
