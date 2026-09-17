@@ -13,13 +13,11 @@
  * Source is `extension_api.json` — the dump `godot --dump-extension-api`
  * produces, published per-branch in godot-cpp.
  *
- *   node scripts/ingest-godot.mjs                        # default branch
+ *   node scripts/ingest-godot.mjs                  # default branch
  *   node scripts/ingest-godot.mjs --branch 4.3
  *   node scripts/ingest-godot.mjs --from ./extension_api.json
- *   node scripts/ingest-godot.mjs --docs ~/src/godot/doc/classes
  */
-import { readFile, writeFile, mkdir, readdir } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const DEFAULT_BRANCH = '4.4';
@@ -28,86 +26,6 @@ const OUT_DIR = 'src/data/godot';
 function arg(name, fallback = null) {
   const i = process.argv.indexOf(`--${name}`);
   return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : fallback;
-}
-
-/** `enum::Node.InternalMode` -> `Node.InternalMode`, `typedarray::Node` -> `Array[Node]`. */
-function cleanType(t) {
-  if (!t) return 'void';
-  if (t.startsWith('enum::')) return t.slice(6);
-  if (t.startsWith('bitfield::')) return t.slice(10);
-  if (t.startsWith('typedarray::')) {
-    // May carry a `24/17:` variant prefix for packed element types.
-    const inner = t.slice(12).replace(/^\d+\/\d+:/, '');
-    return `Array[${cleanType(inner)}]`;
-  }
-  return t;
-}
-
-function renderArgs(args = []) {
-  return args
-    .map((a) => {
-      const base = `${a.name}: ${cleanType(a.type)}`;
-      return 'default_value' in a ? `${base} = ${a.default_value}` : base;
-    })
-    .join(', ');
-}
-
-function renderMethod(m) {
-  const ret = cleanType(m.return_value?.type);
-  const args = renderArgs(m.arguments);
-  const vararg = m.is_vararg ? (args ? ', ...' : '...') : '';
-  const prefix = m.is_static ? 'static func' : 'func';
-  // `is_const` is surfaced as a badge in the UI, not in the signature — there
-  // is no const-method syntax in GDScript to render it into.
-  return `${prefix} ${m.name}(${args}${vararg}) -> ${ret}`;
-}
-
-function anchor(className, kind, memberName) {
-  const slug = (s) => s.toLowerCase().replace(/_/g, '-');
-  // Virtuals are named `_process`; Godot's anchor drops the leading underscore
-  // rather than rendering it as a second dash.
-  return `class-${slug(className)}-${kind}-${slug(memberName.replace(/^_+/, ''))}`;
-}
-
-function docsUrlFor(version, className, kind, memberName) {
-  const base = `https://docs.godotengine.org/en/${version}/classes/class_${className.toLowerCase()}.html`;
-  return kind ? `${base}#${anchor(className, kind, memberName)}` : base;
-}
-
-/** Strip the XML tag soup Godot uses in descriptions down to readable text. */
-function stripBBCode(s) {
-  return s
-    .replace(/\[(code|codeblock|gdscript|csharp)\]([\s\S]*?)\[\/\1\]/g, '`$2`')
-    .replace(/\[(b|i|u)\]([\s\S]*?)\[\/\1\]/g, '$2')
-    .replace(/\[(?:method|member|signal|constant|enum|param|class)\s+([^\]]+)\]/g, '`$1`')
-    .replace(/\[url=[^\]]*\]([\s\S]*?)\[\/url\]/g, '$1')
-    .replace(/\[\/?[a-z]+[^\]]*\]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-/** Minimal targeted extraction — avoids pulling an XML parser for four fields. */
-async function loadDocs(dir) {
-  const docs = new Map();
-  if (!dir || !existsSync(dir)) return docs;
-
-  const files = (await readdir(dir)).filter((f) => f.endsWith('.xml'));
-  for (const f of files) {
-    const xml = await readFile(path.join(dir, f), 'utf8');
-    const className = xml.match(/<class name="([^"]+)"/)?.[1];
-    if (!className) continue;
-
-    const brief = stripBBCode(xml.match(/<brief_description>([\s\S]*?)<\/brief_description>/)?.[1] ?? '');
-    const full = stripBBCode(xml.match(/<description>([\s\S]*?)<\/description>/)?.[1] ?? '');
-
-    const members = new Map();
-    for (const m of xml.matchAll(/<method name="([^"]+)"[\s\S]*?<description>([\s\S]*?)<\/description>/g)) {
-      members.set(m[1], stripBBCode(m[2]));
-    }
-    docs.set(className, { brief, full, members });
-  }
-  console.log(`  merged prose for ${docs.size} classes from ${dir}`);
-  return docs;
 }
 
 async function loadApi() {
@@ -175,8 +93,6 @@ async function main() {
     classes,
     builtins,
     utility: (api.utility_functions ?? []).map((f) => f.name),
-    globalEnums: (api.global_enums ?? []).map((e) => e.name),
-    globalConstants: (api.global_constants ?? []).map((c) => c.name),
   };
 
   await mkdir(OUT_DIR, { recursive: true });

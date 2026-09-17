@@ -1,7 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob, file } from 'astro/loaders';
 
-export const ENGINES = ['unity', 'godot'] as const;
+const ENGINES = ['unity', 'godot'] as const;
 
 export const CATEGORIES = [
   'lifecycle',

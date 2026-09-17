@@ -15,7 +15,6 @@
   --n-400: #949698;
   --n-500: #7b7c7e;
   --n-600: #616264;
-  --n-700: #525253;
   --n-800: #353535;
   --n-900: #1e1e1e;
 
@@ -23,35 +22,16 @@
   --accent-100: #eaf1ff;
   --accent-200: #d3e2ff;
   --accent-300: #b3ccff;
-  --accent-400: #96b9ff;
-  --accent-500: #78a9ff;
-  --accent-600: #5b8ce0;
-  --accent-700: #3f6bb5;
   --accent-800: #2b4a80;
   --accent-900: #1d3054;
-
-  --accent-2: #ee5396;
   --accent-2-100: #ffeaf3;
   --accent-2-300: #ffb8d6;
   --accent-2-500: #ee5396;
-  --accent-2-700: #b02a67;
   --accent-2-800: #6d1a40;
-
-  --syn-key: #be95ff;
-  --syn-id: #33b1ff;
-  --syn-com: #93949a;
 
   --font-heading: Archivo, system-ui, sans-serif;
   --font-body: Inter, system-ui, sans-serif;
   --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-
-  /* Aliases kept so page-scoped styles read naturally. */
-  --border: var(--divider);
-  --muted: var(--n-300);
-  --faint: var(--n-400);
-  --code-bg: var(--n-900);
-  --radius: 0px;
-  --sans: var(--font-body);
 
   /* Shiki writes through these — mapped to the Carbonfox syntax roles.
      Names must match exactly what the `css-variables` theme emits. */
@@ -65,7 +45,6 @@
   --astro-code-token-constant: #33b1ff;
   --astro-code-token-parameter: #dfdfe0;
   --astro-code-token-punctuation: #b6b8bb;
-  --astro-code-token-link: #78a9ff;
 }
 
 * { box-sizing: border-box; }
@@ -82,7 +61,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ---- type ---- */
 h1, h2, h3, h4 {
   font-family: var(--font-heading);
   font-weight: 800;
@@ -121,7 +99,6 @@ hr, .rule { border: 0; border-top: 2px solid var(--divider); margin: 2rem 0; }
   max-width: 78ch;
 }
 
-/* ---- code ---- */
 code, pre { font-family: var(--mono); }
 :not(pre) > code {
   font-size: 0.88em;
@@ -141,13 +118,11 @@ pre {
 }
 pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
 
-/* ---- layout ---- */
 .wrap { max-width: 78rem; margin: 0 auto; padding-inline: 20px; }
 @media (min-width: 900px) { .wrap { padding-inline: 28px; } }
 
 main { padding-block: 0 0; }
 
-/* ---- nav ---- */
 header.site { border-bottom: 2px solid var(--divider); position: sticky; top: 0; z-index: 30; background: var(--bg); }
 .nav { display: flex; align-items: center; gap: 18px; padding-block: 14px; }
 .nav-brand {
@@ -187,13 +162,11 @@ footer.site {
 }
 footer.site p { margin: 0 0 0.4rem; max-width: 80ch; }
 
-/* ---- page header band ---- */
 .band { border-bottom: 2px solid var(--divider); padding-block: 22px 16px; }
 .band-grid { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: end; }
 @media (max-width: 700px) { .band-grid { grid-template-columns: 1fr; align-items: start; } }
 .crumb { color: var(--accent-300); margin-bottom: 8px; }
 
-/* ---- tags ---- */
 .tag {
   display: inline-flex;
   align-items: center;
@@ -208,7 +181,6 @@ footer.site p { margin: 0 0 0.4rem; max-width: 80ch; }
 .tag-outline { border: 2px solid var(--accent); color: var(--accent-300); padding: 1px 8px; }
 .tag-legacy { border: 2px solid var(--n-600); color: var(--n-300); padding: 1px 8px; }
 
-/* ---- split: two engine columns with a 2px rule between ---- */
 .split { display: grid; grid-template-columns: 1fr 2px 1fr; border-top: 2px solid var(--divider); }
 .split > .gutter { background: var(--divider); }
 .split > section { padding: 16px 24px 20px; min-width: 0; }
@@ -218,7 +190,6 @@ footer.site p { margin: 0 0 0.4rem; max-width: 80ch; }
   .split > section { padding: 16px 0 20px; }
 }
 
-/* ---- row lists ---- */
 .rows { display: flex; flex-direction: column; }
 .row {
   display: flex;
@@ -233,7 +204,6 @@ footer.site p { margin: 0 0 0.4rem; max-width: 80ch; }
 .row-title { font-size: 14px; font-weight: 600; color: var(--text); }
 .row .tag { margin-left: auto; }
 
-/* ---- card grid ---- */
 .grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); border-top: 2px solid var(--divider); }
 .gcard {
   display: flex;
@@ -248,9 +218,9 @@ footer.site p { margin: 0 0 0.4rem; max-width: 80ch; }
 .gcard-name { font-family: var(--font-heading); font-weight: 800; font-size: 17px; letter-spacing: -0.02em; color: var(--text); }
 .gcard-desc { font-size: 12.5px; color: var(--n-300); line-height: 1.5; }
 
-/* ---- table ---- */
-.table-scroll { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+/* Wide tables scroll inside themselves; the page itself must never scroll sideways. */
+.prose table { display: block; overflow-x: auto; max-width: 100%; }
 th {
   text-align: left;
   font-size: 10px;
@@ -266,7 +236,6 @@ th {
 td { padding: 9px 10px 9px 0; border-bottom: 1px solid var(--n-800); vertical-align: top; }
 tbody tr:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 
-/* ---- callout ---- */
 .callout {
   border-left: 2px solid var(--accent-2-500);
   background: var(--n-900);
@@ -276,7 +245,6 @@ tbody tr:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 }
 .callout strong { display: block; margin-bottom: 0.2rem; font-family: var(--font-heading); font-weight: 800; }
 
-/* ---- chips ---- */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .chips a {
   display: inline-block;
@@ -288,7 +256,6 @@ tbody tr:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 }
 .chips a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
 
-/* ---- stat panels (home) ---- */
 .stats { display: grid; grid-template-columns: 1fr 2px 1fr; border-block: 2px solid var(--divider); }
 .stats > .gutter { background: var(--divider); }
 .stat { display: flex; flex-direction: column; gap: 2px; padding: 16px 20px; color: inherit; }

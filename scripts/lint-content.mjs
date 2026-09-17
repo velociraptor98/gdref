@@ -175,7 +175,6 @@ for (const r of recipes.values()) {
   for (const m of code.matchAll(/:\s*([A-Z]\w+)(?:\s*[=,)\n]|$)/gm)) flagClass(m[1]);
   for (const m of code.matchAll(/\bas\s+([A-Z]\w+)/g)) flagClass(m[1]);
 
-  // Class.MEMBER references, where the class is one we know.
   for (const m of code.matchAll(/\b([A-Z]\w+)\.([a-zA-Z_]\w*)/g)) {
     const [, cls, member] = m;
     // `new` is the constructor, not a member — the class itself is checked above.

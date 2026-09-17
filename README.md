@@ -210,9 +210,9 @@ Quote any frontmatter value containing `: ` — GDScript signatures like
 
 ## Known gaps
 
-- **Godot prose is not merged yet.** The reference is structurally complete
-  (signatures, signals, properties, enums) but descriptions need a local engine
-  checkout: `npm run ingest:godot -- --docs <godot>/doc/classes`.
+- **The Godot index carries names only.** That is all the linter needs, and the
+  site links to docs.godotengine.org rather than restating it. Signatures and
+  prose are no longer ingested.
 - **The Unity index is a 26-symbol seed list.** `scripts/ingest-unity.mjs`
   has the `--assemblies` path stubbed out; finishing it means a Mono.Cecil pass
   over a local Unity install's managed DLLs. It throws rather than emitting a

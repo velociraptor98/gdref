@@ -72,7 +72,6 @@ const nav = [
     </footer>
 
     <script is:inline>
-      // ⌘K / Ctrl-K jumps to search, as the nav affordance advertises.
       addEventListener('keydown', (e) => {
         if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
           e.preventDefault();

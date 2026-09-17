@@ -20,7 +20,6 @@ const LABEL: Record<string, string> = {
 
 const all = (await getCollection('recipes')).filter((r) => !r.data.draft);
 
-// Render every body up front — they all live on this one page.
 const rendered = await Promise.all(
   all.map(async (r) => ({ ...r, Content: (await render(r)).Content }))
 );
