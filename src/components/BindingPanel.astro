@@ -5,25 +5,50 @@ import { inlineMd } from '../lib/inline';
 
 const { binding } = Astro.props;
 const meta = ENGINE_META[binding.engine as 'unity' | 'godot'];
+const isGodot = binding.engine === 'godot';
+const langLabel = isGodot ? 'GDScript' : 'C#';
+// meta.version is the bare number ("6", "4.4"); versionFull already carries the
+// engine name, so using it here would render "Unity Unity 6".
+const version = meta.version;
 ---
-<div class="panel">
-  <header>
-    <strong style={`color:${meta.accent}`}>{meta.label}</strong>
-    <span class="badge">{meta.versionFull}</span>
-    {binding.symbol && <code style="font-size:0.76rem;background:none;color:var(--muted)">{binding.symbol}</code>}
-  </header>
+<div class="binding">
+  <div class="lbl head">
+    {meta.label} {version} · {langLabel}
+  </div>
 
-  {binding.signature && <div class="sig">{binding.signature}</div>}
+  {binding.symbol && <div class="mono sym">{binding.symbol}</div>}
+  {binding.signature && <div class="mono sig">{binding.signature}</div>}
 
-  <Code code={binding.snippet.trimEnd()} lang={binding.lang} theme="github-dark-dimmed" wrap />
+  <div class={isGodot ? 'code godot' : 'code unity'}>
+    <Code code={binding.snippet.trimEnd()} lang={binding.lang} theme="css-variables" wrap />
+  </div>
 
   {binding.notes && <p class="note" set:html={inlineMd(binding.notes)} />}
 
-  <footer>
-    {binding.docsUrl && (
+  {binding.docsUrl && (
+    <p class="docs">
       <a href={binding.docsUrl} rel="noopener nofollow" target="_blank">
-        Official {meta.label} docs &nearr;
+        Official {meta.label} docs ↗
       </a>
-    )}
-  </footer>
+    </p>
+  )}
 </div>
+
+<style>
+  .binding { min-width: 0; }
+  .head { color: var(--n-400); margin-bottom: 8px; }
+  .sym { font-size: 11.5px; color: var(--accent-300); margin-bottom: 2px; word-break: break-word; }
+  .sig {
+    font-size: 11px;
+    color: var(--n-400);
+    margin-bottom: 8px;
+    overflow-x: auto;
+    white-space: pre;
+    padding-bottom: 4px;
+  }
+  /* The left rule is the engine's signature: neutral for Unity, accent for Godot. */
+  .code :global(pre) { border-left-color: var(--n-600); }
+  .code.godot :global(pre) { border-left-color: var(--accent); }
+  .note { margin: 12px 0 0; font-size: 13px; color: var(--n-300); }
+  .docs { margin: 10px 0 0; font-size: 12px; }
+</style>

@@ -5,6 +5,7 @@ import MappingBadge from '../../components/MappingBadge.astro';
 import { CATEGORIES } from '../../content.config';
 
 const concepts = (await getCollection('concepts')).filter((c) => !c.data.draft);
+
 const LABEL: Record<string, string> = {
   lifecycle: 'Lifecycle',
   scripting: 'Language & scripting',
@@ -24,34 +25,109 @@ const LABEL: Record<string, string> = {
   debugging: 'Debugging',
   editor: 'Editor tooling',
 };
-const grouped = CATEGORIES
-  .map((cat) => ({
-    cat,
-    items: concepts
-      .filter((c) => c.data.category === cat)
-      .sort((a, b) => a.data.title.localeCompare(b.data.title)),
-  }))
-  .filter((g) => g.items.length > 0);
+const BLURB: Record<string, string> = {
+  lifecycle: 'Init, per-frame, physics step, teardown, ordering',
+  scripting: 'The language itself, globals, math, randomness',
+  'scene-structure': 'The structural difference everything else follows from',
+  input: 'Actions, bindings, polling, event propagation',
+  physics: 'Bodies, queries, collisions, layers',
+  rendering: 'Cameras, materials, particles, draw order, lighting',
+  ui: 'Layout, interaction, text',
+  audio: 'Playback, buses, positional sound',
+  animation: 'Clips, state machines, tweens',
+  navigation: 'Pathfinding and agents',
+  assets: 'Scenes, loading, exporting',
+  serialization: 'Inspector fields, data assets, save files',
+  events: 'Signals and the C# event split',
+  async: 'Awaiting, timers, background work',
+  networking: 'RPCs, replication, authority',
+  debugging: 'Logging, overlays, gizmos',
+  editor: 'Tool scripts and editor extension',
+};
+
+const grouped = CATEGORIES.map((cat, i) => ({
+  cat,
+  n: String(i + 1).padStart(2, '0'),
+  items: concepts
+    .filter((c) => c.data.category === cat)
+    .sort((a, b) => a.data.title.localeCompare(b.data.title)),
+})).filter((g) => g.items.length > 0);
+
+const byKind = (k: string) => concepts.filter((c) => c.data.mappingKind === k).length;
 ---
 <Base title="Concepts — gdref" description="Every Unity ⇄ Godot mapping, by category.">
-  <h1>Concepts</h1>
-  <p class="lede">
-    {concepts.length} mappings. Badges say how well the two engines line up — read the
-    notes on anything that isn't <em>direct</em>.
-  </p>
-
-  {grouped.map((g) => (
-    <>
-      <h2 class="cat">{LABEL[g.cat]}</h2>
-      <ul class="cards">
-        {g.items.map((c) => (
-          <li class="card">
-            <a href={`/concepts/${c.id}/`}>{c.data.title}</a>
-            <p>{c.data.summary}</p>
-            <MappingBadge kind={c.data.mappingKind} />
-          </li>
-        ))}
+  <div class="band">
+    <div class="wrap band-grid">
+      <div>
+        <div class="lbl crumb">Index</div>
+        <h1>{concepts.length} concepts, {grouped.length} categories</h1>
+        <p class="lede" style="margin:8px 0 0">
+          Every mapping carries a fidelity label. Nothing is claimed to be equivalent when it
+          is not.
+        </p>
+      </div>
+      <ul class="counts">
+        <li><span class="tag lbl tag-direct">Direct</span> {byKind('direct')}</li>
+        <li><span class="tag lbl tag-approximate">Approximate</span> {byKind('approximate')}</li>
+        <li><span class="tag lbl tag-mental-model">Mental model</span> {byKind('mental-model')}</li>
+        <li><span class="tag lbl tag-none">None</span> {byKind('none')}</li>
       </ul>
-    </>
-  ))}
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="grid-cards">
+      {grouped.map((g) => (
+        <a class="gcard" href={`#${g.cat}`}>
+          <span class="lbl" style="color:var(--accent-300)">{g.n} · {g.items.length}</span>
+          <span class="gcard-name">{LABEL[g.cat]}</span>
+          <span class="gcard-desc">{BLURB[g.cat]}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <div class="wrap">
+    {grouped.map((g) => (
+      <section class="group">
+        <h2 id={g.cat} class="lbl ghead">{g.n} · {LABEL[g.cat]}</h2>
+        <div class="rows">
+          {g.items.map((c) => (
+            <a class="row" href={`/concepts/${c.id}/`}>
+              <span class="row-title">{c.data.title}</span>
+              <span class="row-sum">{c.data.summary}</span>
+              <MappingBadge kind={c.data.mappingKind} />
+            </a>
+          ))}
+        </div>
+      </section>
+    ))}
+  </div>
+
+  <style>
+    .counts { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px; }
+    .counts li { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--n-300); }
+    .group { padding-block: 26px 0; }
+    .ghead {
+      color: var(--n-400);
+      margin: 0 0 2px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--divider);
+      scroll-margin-top: 70px;
+    }
+    .row-sum {
+      font-size: 12.5px;
+      color: var(--n-400);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (max-width: 760px) {
+      .row { flex-wrap: wrap; }
+      .row-sum { flex-basis: 100%; white-space: normal; }
+      .row .tag { margin-left: 0; }
+    }
+  </style>
 </Base>

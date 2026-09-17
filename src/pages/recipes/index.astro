@@ -40,28 +40,41 @@ const conceptTitle = (id: string) => concepts.find((c) => c.id === id)?.data.tit
   title="Godot recipes — gdref"
   description="Copy-paste solutions to the things every Godot project needs."
 >
-  <h1>Godot recipes</h1>
-  <p class="lede">
-    {all.length} solutions to the things every project needs, written for
-    {ENGINE_META.godot.versionFull.replace('Godot Engine ', 'Godot ')}. Godot only —
-    no comparison, just code that works.
-  </p>
+  <div class="band">
+    <div class="wrap band-grid">
+      <div>
+        <div class="lbl crumb">Recipes</div>
+        <h1>{all.length} Godot recipes</h1>
+      </div>
+      <span class="tag lbl tag-outline">Godot only</span>
+    </div>
+  </div>
 
-  <nav class="jump" aria-label="Recipe categories">
-    {groups.map((g) => <a href={`#${g.group}`}>{g.label}</a>)}
-  </nav>
+  <div class="wrap intro">
+    <p class="lede">
+      Solutions to the things every project needs, written for
+      {ENGINE_META.godot.versionFull.replace('Godot Engine ', 'Godot ')}. No comparison
+      column — just code that works.
+    </p>
+    <nav class="jump" aria-label="Recipe categories">
+      {groups.map((g) => <a href={`#${g.group}`}>{g.label}</a>)}
+    </nav>
+  </div>
 
-  <div data-pagefind-body>
+  <div class="wrap" data-pagefind-body>
     {groups.map((g) => (
       <section class="recipe-group">
         <h2 id={g.group} class="group-head">{g.label}</h2>
 
         {g.items.map((r) => (
           <article class="recipe" id={r.id}>
-            <h3>
-              <a href={`#${r.id}`} class="anchor" aria-label="Link to this recipe">#</a>
-              {r.data.title}
-            </h3>
+            <div class="rhead">
+              <h3>
+                <a href={`#${r.id}`} class="anchor" aria-label="Link to this recipe">#</a>
+                {r.data.title}
+              </h3>
+              <span class="lbl file mono">{r.id}.gd</span>
+            </div>
             <p class="problem">{r.data.summary}</p>
             <r.Content />
             {r.data.related.length > 0 && (
@@ -82,57 +95,63 @@ const conceptTitle = (id: string) => concepts.find((c) => c.id === id)?.data.tit
   </div>
 
   <style>
+    .intro { padding-block: 16px 0; }
     .jump {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-      margin: 0 0 2.4rem;
-      padding-bottom: 1.2rem;
-      border-bottom: 1px solid var(--border);
+      margin: 14px 0 0;
+      padding-bottom: 18px;
+      border-bottom: 2px solid var(--divider);
     }
     .jump a {
-      font-size: 0.8rem;
-      padding: 3px 10px;
-      border: 1px solid var(--border);
-      border-radius: 100px;
-      text-decoration: none;
-      color: var(--muted);
-      background: var(--surface);
+      font-size: 11px;
+      padding: 3px 9px;
+      border: 2px solid var(--divider);
+      color: var(--n-300);
+      font-family: var(--font-heading);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
-    .jump a:hover { color: var(--accent); border-color: var(--accent); }
+    .jump a:hover { color: var(--accent); border-color: var(--accent); text-decoration: none; }
 
     .group-head {
-      font-size: 0.78rem;
+      color: var(--n-400);
+      margin: 2.6rem 0 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--divider);
+      scroll-margin-top: 70px;
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 10px;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--faint);
-      font-weight: 650;
-      margin: 3rem 0 0;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid var(--border);
-      scroll-margin-top: 72px;
     }
-    .recipe-group:first-child .group-head { margin-top: 0; }
+    .recipe-group:first-child .group-head { margin-top: 1.6rem; }
 
-    .recipe { padding: 1.6rem 0 0.4rem; scroll-margin-top: 72px; }
-    .recipe + .recipe { border-top: 1px solid var(--border); margin-top: 1.4rem; }
-    .recipe h3 { margin: 0 0 0.2rem; font-size: 1.06rem; }
-    .recipe .problem { color: var(--muted); margin: 0 0 0.9rem; font-size: 0.92rem; }
-    .recipe :global(p) { font-size: 0.93rem; }
-    .recipe :global(pre) { margin: 0.9rem 0; }
+    .recipe { padding: 1.5rem 0 0.4rem; scroll-margin-top: 70px; }
+    .recipe + .recipe { border-top: 1px solid var(--n-800); margin-top: 1.2rem; }
+    .rhead { display: flex; align-items: baseline; gap: 12px; }
+    .recipe h3 { margin: 0; font-size: 17px; }
+    .file { margin-left: auto; color: var(--n-400); font-size: 10.5px; }
+    .recipe .problem { color: var(--n-300); margin: 4px 0 12px; font-size: 13px; }
+    .recipe :global(p) { font-size: 13.5px; color: var(--n-200); max-width: 78ch; }
+    .recipe :global(pre) { margin: 12px 0; border-left-color: var(--accent); }
+    .recipe :global(h3) { font-size: 14px; }
 
     .anchor {
-      color: var(--faint);
+      color: var(--n-600);
       text-decoration: none;
       font-weight: 400;
-      margin-left: -1.1em;
-      padding-right: 0.35em;
+      margin-left: -0.9em;
+      padding-right: 0.3em;
       opacity: 0;
       transition: opacity 0.12s;
     }
     .recipe:hover .anchor, .anchor:focus { opacity: 1; }
-    @media (max-width: 700px) { .anchor { display: none; } }
+    @media (max-width: 700px) { .anchor { display: none; } .file { display: none; } }
 
-    .rel { font-size: 0.84rem; color: var(--faint); margin: 0.9rem 0 0; }
+    .rel { font-size: 12px; color: var(--n-400); margin: 0.9rem 0 0; }
   </style>
 </Base>

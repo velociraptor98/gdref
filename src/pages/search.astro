@@ -2,15 +2,23 @@
 import Base from '../layouts/Base.astro';
 ---
 <Base title="Search — gdref" description="Search concepts, Godot recipes, and legacy Unity symbols.">
-  <h1>Search</h1>
-  <p class="lede">
-    Concepts, recipes, and legacy Unity symbols. Searching something like
-    <code>Input.GetAxis</code> lands on a pointer to the modern equivalent.
-  </p>
+  <div class="band">
+    <div class="wrap">
+      <div class="lbl crumb">Search</div>
+      <h1>Find it</h1>
+    </div>
+  </div>
 
-  <!-- Pagefind builds its index from `dist` after `astro build`; the UI is only
-       present in the built site, so `astro dev` will show an empty box. -->
-  <div id="search"></div>
+  <div class="wrap body">
+    <p class="lede">
+      Concepts, recipes, and legacy Unity symbols. Searching something like
+      <code>Input.GetAxis</code> lands on a pointer to the modern equivalent.
+    </p>
+
+    <!-- Pagefind builds its index from `dist` after `astro build`; the UI is only
+         present in the built site, so `astro dev` will show an empty box. -->
+    <div id="search"></div>
+  </div>
 
   <link href="/pagefind/pagefind-ui.css" rel="stylesheet" />
   <script is:inline src="/pagefind/pagefind-ui.js"></script>
@@ -18,7 +26,7 @@ import Base from '../layouts/Base.astro';
     window.addEventListener('DOMContentLoaded', () => {
       if (typeof PagefindUI === 'undefined') {
         document.getElementById('search').innerHTML =
-          '<p style="color:var(--muted)">Search index not built. Run <code>npm run build</code>, ' +
+          '<p style="color:var(--n-300)">Search index not built. Run <code>npm run build</code>, ' +
           'then <code>npm run preview</code> — Pagefind indexes the built site.</p>';
         return;
       }
@@ -28,60 +36,85 @@ import Base from '../layouts/Base.astro';
 
   <style is:global>
     /*
-      Pagefind ships its own stylesheet, and its <link> loads after Astro's
-      bundle. It sets these variables on `:root` — same specificity as ours —
-      so on source order alone Pagefind wins, and result text falls back to its
-      default #393939. Against the dark theme's #16171a page that is dark-on-dark.
-
-      Scoping to `#search` (an ID, 1-0-0) beats `:root` (0-1-0) outright, so the
-      override no longer depends on load order. The custom properties inherit to
-      every element Pagefind renders inside the container.
+      Pagefind's stylesheet loads after Astro's bundle and also targets `:root`,
+      so variables set there lose on source order. Scoping to `#search` (an ID,
+      1-0-0) beats `:root` (0-1-0) outright, so the override no longer depends
+      on load order.
     */
     #search {
       --pagefind-ui-scale: 0.95;
       --pagefind-ui-primary: var(--accent);
       --pagefind-ui-text: var(--text);
-      --pagefind-ui-background: var(--surface);
-      --pagefind-ui-border: var(--border);
-      --pagefind-ui-tag: var(--surface);
-      --pagefind-ui-border-width: 1px;
-      --pagefind-ui-border-radius: var(--radius);
-      --pagefind-ui-font: var(--sans);
+      --pagefind-ui-background: var(--bg);
+      --pagefind-ui-border: var(--divider);
+      --pagefind-ui-tag: var(--n-800);
+      --pagefind-ui-border-width: 2px;
+      --pagefind-ui-border-radius: 0px;
+      --pagefind-ui-font: var(--font-body);
     }
 
-    /* Results as cards, so they read as distinct rows against the page. */
+    /* Rows separated by rules rather than cards — matches the rest of the design. */
     #search .pagefind-ui__result {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 13px 16px;
-      margin-bottom: 10px;
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--n-800);
+      border-radius: 0;
+      padding: 14px 0;
+      margin: 0;
     }
-    #search .pagefind-ui__result:last-of-type { border-bottom: 1px solid var(--border); }
+    #search .pagefind-ui__result:last-of-type { border-bottom: 1px solid var(--n-800); }
+    #search .pagefind-ui__result:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
 
-    #search .pagefind-ui__result-title .pagefind-ui__result-link { color: var(--text); }
+    #search .pagefind-ui__result-title .pagefind-ui__result-link {
+      color: var(--text);
+      font-family: var(--font-heading);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
     #search .pagefind-ui__result-title .pagefind-ui__result-link:hover { color: var(--accent); }
-    #search .pagefind-ui__result-excerpt { color: var(--muted); }
+    #search .pagefind-ui__result-excerpt { color: var(--n-300); font-size: 13px; }
 
-    /* Sub-results (recipe anchors, concept headings) sit one level down. */
-    #search .pagefind-ui__result-nested .pagefind-ui__result-link { color: var(--muted); }
+    #search .pagefind-ui__result-nested .pagefind-ui__result-link { color: var(--accent-300); font-weight: 600; }
     #search .pagefind-ui__result-nested .pagefind-ui__result-link:hover { color: var(--accent); }
 
-    /* The browser default <mark> is black-on-yellow, which fights both themes. */
+    /* The browser default <mark> is black-on-yellow, which fights the palette. */
     #search mark {
-      background: var(--accent-soft);
-      color: var(--accent);
+      background: var(--accent-900);
+      color: var(--accent-200);
       font-weight: 600;
-      border-radius: 3px;
-      padding: 0 2px;
+      border-radius: 0;
+      padding: 0 3px;
     }
 
     #search .pagefind-ui__search-input {
       color: var(--text);
-      border-color: var(--border);
+      background: var(--bg);
+      border: 2px solid var(--divider);
+      border-radius: 0;
+      font-family: var(--font-body);
     }
-    #search .pagefind-ui__search-input::placeholder { color: var(--faint); }
-    #search .pagefind-ui__search-clear { color: var(--muted); background: transparent; }
-    #search .pagefind-ui__message { color: var(--muted); }
+    #search .pagefind-ui__search-input:focus { border-color: var(--accent); outline: none; }
+    #search .pagefind-ui__search-input::placeholder { color: var(--n-500); }
+    #search .pagefind-ui__search-clear { color: var(--n-300); background: transparent; border-radius: 0; }
+    #search .pagefind-ui__message {
+      color: var(--n-400);
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    #search .pagefind-ui__button {
+      border-radius: 0;
+      border: 2px solid var(--divider);
+      color: var(--accent-300);
+      background: transparent;
+    }
+    #search .pagefind-ui__button:hover { border-color: var(--accent); color: var(--accent); }
+  </style>
+
+  <style>
+    .body { padding-block: 18px 0; }
+    .band { padding-block: 26px 18px; }
   </style>
 </Base>

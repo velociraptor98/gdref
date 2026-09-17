@@ -23,6 +23,9 @@ export default defineConfig({
     }),
   ],
   markdown: {
-    shikiConfig: { theme: 'github-dark-dimmed', wrap: true },
+    // `css-variables` makes Shiki emit var(--astro-code-*) instead of baked
+    // hex, so highlighting follows the Carbonfox syntax roles defined in
+    // global.css rather than approximating them with a stock theme.
+    shikiConfig: { theme: 'css-variables', wrap: true },
   },
 });

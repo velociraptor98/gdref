@@ -20,6 +20,35 @@ npm run lint:content  # cross-reference check on its own
 `npm run dev` is fine for authoring content, but the search page will be empty:
 Pagefind indexes the *built* site.
 
+## Design
+
+Carbonfox — the IBM Carbon-derived dark scheme. It is **single-theme by
+intent**: there is no light counterpart, so every colour is painted explicitly
+and there are no `prefers-color-scheme` blocks.
+
+All tokens live at the top of `src/styles/global.css`:
+
+| | |
+| --- | --- |
+| Ground / surface / text | `#161616` / `#252525` / `#f2f4f8` |
+| Accent (Godot, links, numbers) | `#78a9ff` + a 100–900 ramp |
+| Accent 2 (fidelity badges) | `#ee5396` + ramp |
+| Syntax | keyword `#be95ff`, ident `#33b1ff`, comment `#93949a` |
+| Type | Archivo 800 headings at `-0.03em`, Inter body |
+| Shape | **no border-radius**; 2px rules for structure, 1px for row separators |
+
+Two conventions worth keeping when adding pages:
+
+- **The left rule on a code block identifies the engine** — neutral `--n-600`
+  for Unity, `--accent` for Godot. `BindingPanel` sets this automatically.
+- **`.lbl`** is the uppercase Archivo micro-label used for every section head,
+  breadcrumb and engine caption. Reach for it rather than styling a heading down.
+
+Syntax highlighting goes through Shiki's `css-variables` theme, so the
+`--astro-code-*` variables in `global.css` are the single source of truth —
+changing a syntax colour there updates every code block. The variable names must
+match what Shiki emits exactly; there is no fallback if one is misspelled.
+
 ## Deploying
 
 Static output, no server. Build `npm run build`, publish `dist`.

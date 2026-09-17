@@ -18,21 +18,39 @@ const target = concepts.find((c) => c.id === stub.data.replacedBy);
     from tables or browse pages. See SCOPE.md.
   */}
   <article data-pagefind-body>
-    <p><span class="badge none">Legacy</span></p>
-    <h1><code style="background:none;color:inherit;padding:0">{stub.data.symbol}</code></h1>
-    <p class="lede">{stub.data.note}</p>
-
-    {target && (
-      <div class="callout">
-        <strong>Current equivalent</strong>
-        <a href={`/concepts/${target.id}/`}>{target.data.title}</a> — {target.data.summary}
+    <div class="band">
+      <div class="wrap band-grid">
+        <div>
+          <div class="lbl crumb">Legacy Unity symbol</div>
+          <h1 class="mono sym">{stub.data.symbol}</h1>
+        </div>
+        <span class="tag lbl tag-legacy">Legacy</span>
       </div>
-    )}
+    </div>
 
-    {stub.data.docsUrl && (
-      <p style="font-size:.84rem">
-        <a href={stub.data.docsUrl} rel="noopener nofollow" target="_blank">Unity's docs for the legacy API &nearr;</a>
-      </p>
-    )}
+    <div class="wrap body">
+      <p class="lede">{stub.data.note}</p>
+
+      {target && (
+        <div class="callout">
+          <strong>Current equivalent</strong>
+          <a href={`/concepts/${target.id}/`}>{target.data.title}</a> — {target.data.summary}
+        </div>
+      )}
+
+      {stub.data.docsUrl && (
+        <p class="docs">
+          <a href={stub.data.docsUrl} rel="noopener nofollow" target="_blank">
+            Unity's docs for the legacy API ↗
+          </a>
+        </p>
+      )}
+    </div>
   </article>
+
+  <style>
+    .sym { font-size: clamp(20px, 4vw, 32px); letter-spacing: -0.02em; word-break: break-word; }
+    .body { padding-block: 18px 0; }
+    .docs { font-size: 12px; margin-top: 1.2rem; }
+  </style>
 </Base>

@@ -4,6 +4,7 @@ import Base from '../../layouts/Base.astro';
 import BindingPanel from '../../components/BindingPanel.astro';
 import MappingBadge from '../../components/MappingBadge.astro';
 import { inlineMd } from '../../lib/inline';
+import { CATEGORIES } from '../../content.config';
 
 export async function getStaticPaths() {
   const concepts = await getCollection('concepts');
@@ -14,76 +15,116 @@ const { concept } = Astro.props;
 const { data } = concept;
 const { Content } = await render(concept);
 
-const all = await getCollection('concepts');
-const related = data.related
-  .map((id: string) => all.find((c) => c.id === id))
-  .filter(Boolean);
+const all = (await getCollection('concepts')).filter((c) => !c.data.draft);
+const related = data.related.map((id: string) => all.find((c) => c.id === id)).filter(Boolean);
 
-// Unity on the left: most readers arrive knowing Unity and looking for Godot.
+const LABEL: Record<string, string> = {
+  lifecycle: 'Lifecycle', scripting: 'Language & scripting', 'scene-structure': 'Scene structure',
+  input: 'Input', physics: 'Physics', rendering: 'Rendering', ui: 'UI', audio: 'Audio',
+  animation: 'Animation', navigation: 'Navigation', assets: 'Assets',
+  serialization: 'Serialization', events: 'Events', async: 'Async & timing',
+  networking: 'Networking', debugging: 'Debugging', editor: 'Editor tooling',
+};
+const catIndex = String(CATEGORIES.indexOf(data.category) + 1).padStart(2, '0');
+const siblings = all.filter((c) => c.data.category === data.category)
+  .sort((a, b) => a.data.title.localeCompare(b.data.title));
+const pos = String(siblings.findIndex((c) => c.id === concept.id) + 1).padStart(2, '0');
+
+// Unity first: most readers arrive knowing Unity and looking for Godot.
 const order = ['unity', 'godot'];
-const bindings = [...data.bindings].sort(
-  (a, b) => order.indexOf(a.engine) - order.indexOf(b.engine)
-);
+const bindings = [...data.bindings].sort((a, b) => order.indexOf(a.engine) - order.indexOf(b.engine));
+const unity = bindings.find((b: any) => b.engine === 'unity');
+const godot = bindings.find((b: any) => b.engine === 'godot');
+
 const legacy = (await getCollection('legacy')).filter((l) => l.data.replacedBy === concept.id);
 ---
 <Base title={`${data.title} — gdref`} description={data.summary}>
   <article data-pagefind-body>
-    <p style="margin:0 0 .4rem"><a href="/concepts/" style="font-size:.86rem">&larr; Concepts</a></p>
-    <h1>{data.title}</h1>
-    <p class="lede">{data.summary}</p>
-    <p><MappingBadge kind={data.mappingKind} /></p>
-
-    {data.mappingKind === 'none' && (
-      <div class="callout">
-        <strong>No first-party equivalent</strong>
-        <span set:html={inlineMd(data.gap)} />
+    <div class="band">
+      <div class="wrap band-grid">
+        <div>
+          <div class="lbl crumb">
+            <a href="/concepts/">Concepts</a> / {catIndex} {LABEL[data.category]} / {pos}
+          </div>
+          <h1>{data.title}</h1>
+        </div>
+        <MappingBadge kind={data.mappingKind} />
       </div>
-    )}
+    </div>
+
+    <div class="wrap intro">
+      <p class="lede">{data.summary}</p>
+      {data.mappingKind === 'none' && (
+        <div class="callout">
+          <strong>No first-party equivalent</strong>
+          <span set:html={inlineMd(data.gap)} />
+        </div>
+      )}
+    </div>
 
     {bindings.length > 0 && (
-      <div class="pair">
-        {bindings.map((b: any) => <BindingPanel binding={b} />)}
+      <div class="wrap">
+        <div class="split">
+          <section>{unity && <BindingPanel binding={unity} />}</section>
+          <div class="gutter"></div>
+          <section>{godot && <BindingPanel binding={godot} />}</section>
+        </div>
       </div>
     )}
 
     {data.migration && (
-      <>
-        <h2>Porting notes</h2>
-        <div class="pair">
-          {data.migration.fromUnity && (
-            <div class="panel">
-              <header><strong>Unity &rarr; Godot</strong></header>
-              <p class="note" set:html={inlineMd(data.migration.fromUnity)} />
-            </div>
-          )}
-          {data.migration.fromGodot && (
-            <div class="panel">
-              <header><strong>Godot &rarr; Unity</strong></header>
-              <p class="note" set:html={inlineMd(data.migration.fromGodot)} />
-            </div>
-          )}
+      <div class="wrap">
+        <div class="split port">
+          <section>
+            <div class="lbl head">Unity → Godot</div>
+            {data.migration.fromUnity && <p set:html={inlineMd(data.migration.fromUnity)} />}
+          </section>
+          <div class="gutter"></div>
+          <section>
+            <div class="lbl head">Godot → Unity</div>
+            {data.migration.fromGodot && <p set:html={inlineMd(data.migration.fromGodot)} />}
+          </section>
         </div>
-      </>
+      </div>
     )}
 
-    <Content />
+    <div class="wrap prose">
+      <Content />
 
-    {legacy.length > 0 && (
-      <>
-        <h2>Legacy Unity symbols that land here</h2>
-        <ul class="chips">
-          {legacy.map((l) => <li><a href={`/legacy/${l.id}/`}>{l.data.symbol}</a></li>)}
-        </ul>
-      </>
-    )}
+      {legacy.length > 0 && (
+        <>
+          <h2>Legacy Unity symbols that land here</h2>
+          <ul class="chips">
+            {legacy.map((l) => <li><a href={`/legacy/${l.id}/`}>{l.data.symbol}</a></li>)}
+          </ul>
+        </>
+      )}
 
-    {related.length > 0 && (
-      <>
-        <h2>Related</h2>
-        <ul class="chips">
-          {related.map((c: any) => <li><a href={`/concepts/${c.id}/`}>{c.data.title}</a></li>)}
-        </ul>
-      </>
-    )}
+      {related.length > 0 && (
+        <>
+          <h2>Related</h2>
+          <div class="rows">
+            {related.map((c: any) => (
+              <a class="row" href={`/concepts/${c.id}/`}>
+                <span class="row-title">{c.data.title}</span>
+                <MappingBadge kind={c.data.mappingKind} />
+              </a>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   </article>
+
+  <style>
+    .crumb a { color: inherit; }
+    .intro { padding-block: 16px 4px; }
+    .intro .lede { font-size: 14.5px; color: var(--text); }
+    .port section p { font-size: 13px; color: var(--n-300); margin: 0; }
+    .port .head { color: var(--n-400); margin-bottom: 8px; }
+    .prose { padding-block: 22px 0; }
+    .prose :global(p), .prose :global(li) { max-width: 78ch; font-size: 14px; color: var(--n-200); }
+    .prose :global(h2) { padding-bottom: 8px; border-bottom: 2px solid var(--divider); }
+    .prose :global(table) { margin: 1rem 0; }
+  </style>
 </Base>

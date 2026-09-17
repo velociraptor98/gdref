@@ -8,22 +8,27 @@ interface Props {
 }
 const { title, description } = Astro.props;
 const path = Astro.url.pathname;
-// Astro.site is undefined if `site` is unset in the config, so guard the joins.
 const canonical = Astro.site ? new URL(path, Astro.site).href : undefined;
 const nav = [
   ['/concepts/', 'Concepts'],
   ['/recipes/', 'Recipes'],
-  ['/search/', 'Search'],
 ];
 ---
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     {canonical && <link rel="canonical" href={canonical} />}
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Archivo:wght@700;800&family=Inter:wght@400;500;600&display=swap"
+    />
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="gdref" />
@@ -33,35 +38,47 @@ const nav = [
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content={title} />
     {description && <meta name="twitter:description" content={description} />}
-    <meta name="theme-color" content="#fbfbfa" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#16171a" media="(prefers-color-scheme: dark)" />
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='13' font-size='13'>🎮</text></svg>" />
+    <meta name="theme-color" content="#161616" />
+    <meta name="color-scheme" content="dark" />
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' fill='%23161616'/><text y='12.5' x='1' font-size='12' font-family='sans-serif' font-weight='bold' fill='%2378a9ff'>g</text></svg>" />
   </head>
   <body>
     <header class="site">
-      <div class="wrap">
-        <a class="brand" href="/">gd<span>ref</span></a>
-        <nav>
-          {nav.map(([href, label]) => (
-            <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>
-          ))}
-        </nav>
+      <div class="wrap nav">
+        <a class="nav-brand" href="/">gd<span>ref</span></a>
+        {nav.map(([href, label]) => (
+          <a href={href} aria-current={path.startsWith(href) ? 'page' : undefined}>{label}</a>
+        ))}
+        <a class="nav-search" href="/search/">
+          Search<span class="k">⌘K</span>
+        </a>
       </div>
     </header>
 
-    <main class="wrap">
+    <main>
       <slot />
     </main>
 
     <footer class="site">
       <div class="wrap">
         <p>
-          Godot examples target {ENGINE_META.godot.versionFull} and are checked against the
-          engine's own API index. {ENGINE_META.godot.license.attribution}
+          Tracking {ENGINE_META.unity.versionFull} and
+          {ENGINE_META.godot.versionFull.replace('Godot Engine ', 'Godot ')}. Godot symbols are
+          checked against the engine's own API index at build time.
         </p>
-        <p>{ENGINE_META.unity.license.attribution} Tracking {ENGINE_META.unity.versionFull}.</p>
+        <p>{ENGINE_META.godot.license.attribution} {ENGINE_META.unity.license.attribution}</p>
         <p>Not affiliated with Unity Technologies or the Godot Foundation.</p>
       </div>
     </footer>
+
+    <script is:inline>
+      // ⌘K / Ctrl-K jumps to search, as the nav affordance advertises.
+      addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          location.href = '/search/';
+        }
+      });
+    </script>
   </body>
 </html>

@@ -11,7 +11,7 @@ export const ENGINE_META = {
     versionFull: godot.versionFull,
     lang: 'gdscript' as const,
     license: godot.license,
-    accent: 'var(--godot)',
+    accent: 'var(--accent)',
     docsRoot: `https://docs.godotengine.org/en/${godot.version}/`,
   },
   unity: {
@@ -21,7 +21,7 @@ export const ENGINE_META = {
     versionFull: unity.versionFull,
     lang: 'csharp' as const,
     license: unity.license,
-    accent: 'var(--unity)',
+    accent: 'var(--n-300)',
     docsRoot: 'https://docs.unity3d.com/ScriptReference/',
   },
 };

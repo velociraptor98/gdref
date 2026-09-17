@@ -2,13 +2,13 @@
 import { getCollection } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import MappingBadge from '../components/MappingBadge.astro';
-import { ENGINE_META } from '../lib/engines';
 
 const concepts = (await getCollection('concepts')).filter((c) => !c.data.draft);
 const recipes = (await getCollection('recipes')).filter((r) => !r.data.draft);
 const categories = new Set(concepts.map((c) => c.data.category)).size;
+const groups = new Set(recipes.map((r) => r.data.group)).size;
 
-const featured = ['components-vs-nodes', 'input-actions', 'character-movement', 'gdscript-vs-csharp']
+const featured = ['components-vs-nodes', 'input-actions', 'character-movement', 'gdscript-vs-csharp', 'spawn-object']
   .map((id) => concepts.find((c) => c.id === id))
   .filter(Boolean);
 ---
@@ -16,59 +16,59 @@ const featured = ['components-vs-nodes', 'input-actions', 'character-movement', 
   title="gdref — Unity ⇄ Godot reference"
   description="A Rosetta stone for developers moving between Unity 6 and Godot 4, plus Godot recipes for common tasks."
 >
-  <h1>Unity &rlarr; Godot, side by side</h1>
-  <p class="lede">
-    You know how to do it in one engine. This tells you how to say it in the other —
-    with honest notes where the two do not line up, and a pile of Godot recipes for
-    when you just need the code.
-  </p>
+  <div class="wrap hero">
+    <h1>Unity ⇄ Godot,<br />side by side</h1>
+    <p class="lede">
+      You know how to do it in one engine. This tells you how to say it in the other —
+      with honest notes where they do not line up.
+    </p>
+  </div>
 
-  <div class="pair">
-    <div class="panel">
-      <header><strong>Concepts</strong><span class="badge">{concepts.length}</span></header>
-      <p class="note">
-        Side-by-side mappings across {categories} categories, each labelled with how
-        closely the two engines actually line up. Read the notes on anything that is
-        not <em>direct</em>.
-      </p>
-      <footer><a href="/concepts/">Browse concepts &rarr;</a></footer>
-    </div>
-    <div class="panel">
-      <header><strong>Recipes</strong><span class="badge">{recipes.length}</span></header>
-      <p class="note">
-        Godot-only solutions to the things every project needs — movement, save files,
-        screen shake, pause menus. No comparison, just code that works.
-      </p>
-      <footer><a href="/recipes/">Browse recipes &rarr;</a></footer>
+  <div class="wrap">
+    <div class="stats">
+      <a class="stat" href="/concepts/">
+        <span class="lbl stat-n">{concepts.length}</span>
+        <span class="stat-name">Concepts</span>
+        <span class="stat-sub">{categories} categories</span>
+      </a>
+      <div class="gutter"></div>
+      <a class="stat" href="/recipes/">
+        <span class="lbl stat-n">{recipes.length}</span>
+        <span class="stat-name">Recipes</span>
+        <span class="stat-sub">Godot only · {groups} groups</span>
+      </a>
     </div>
   </div>
 
-  <h2>Start here</h2>
-  <ul class="cards">
-    {featured.map((c: any) => (
-      <li class="card">
-        <a href={`/concepts/${c.id}/`}>{c.data.title}</a>
-        <p>{c.data.summary}</p>
-        <MappingBadge kind={c.data.mappingKind} />
-      </li>
-    ))}
-  </ul>
-
-  <h2>Scope</h2>
-  <p>
-    <strong>{ENGINE_META.unity.versionFull}</strong>, modern APIs only — Input System,
-    <code>Awaitable</code>, URP. Legacy symbols like <code>Input.GetAxis</code> stay
-    searchable and point at the current equivalent, but never appear in the tables.
-  </p>
-  <p>
-    <strong>{ENGINE_META.godot.versionFull.replace('Godot Engine ', 'Godot ')}</strong>.
-    Every Godot symbol quoted here is checked against the engine's own API index at
-    build time, so signatures cannot quietly rot between releases.
-  </p>
-
-  <div class="callout">
-    <strong>Two engines, deliberately.</strong>
-    Unity to Godot is the migration people are actually making, and a two-column
-    comparison fits on a phone. Adding a third would cost both.
+  <div class="wrap sec">
+    <div class="lbl head">Start here</div>
+    <div class="rows">
+      {featured.map((c: any) => (
+        <a class="row" href={`/concepts/${c.id}/`}>
+          <span class="row-title">{c.data.title}</span>
+          <MappingBadge kind={c.data.mappingKind} />
+        </a>
+      ))}
+    </div>
   </div>
+
+  <div class="wrap sec">
+    <div class="lbl head">Scope</div>
+    <p class="scope">
+      <strong>Unity 6</strong>, modern APIs only — Input System, <code>Awaitable</code>, URP.
+      Legacy symbols like <code>Input.GetAxis</code> stay searchable and point at the current
+      equivalent, but never appear in the tables.
+    </p>
+    <p class="scope">
+      Unity to Godot is the migration people are actually making, and two columns fit on a
+      phone. Adding a third engine would cost both.
+    </p>
+  </div>
+
+  <style>
+    .hero { padding-block: 26px 18px; }
+    .sec { padding-block: 18px 4px; }
+    .head { color: var(--n-400); margin-bottom: 6px; }
+    .scope { font-size: 13px; color: var(--n-300); max-width: 78ch; }
+  </style>
 </Base>
