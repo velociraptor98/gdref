@@ -58,11 +58,13 @@ Static output, no server. Build `npm run build`, publish `dist`.
 | Build command | `npm run build` |
 | Publish directory | `dist` |
 | Node version | 20.11+ (`.nvmrc` pins 22; `engines` enforces the floor) |
-| Env var | `SITE_URL=https://your-real-domain` |
+| Env var | `SITE_URL` — only when deploying somewhere other than the default |
 
-**Set `SITE_URL`.** It drives `<link rel="canonical">`, Open Graph URLs and the
-sitemap. Without it the build falls back to a placeholder origin, which is wrong
-unless you happen to own it.
+Live at **https://gdref.netlify.app**, which is the origin `astro.config.mjs`
+falls back to. It drives `<link rel="canonical">`, Open Graph URLs and the
+sitemap, so if you move to a custom domain, set `SITE_URL` in the Netlify build
+environment and redeploy — a canonical pointing at the wrong host tells search
+engines to index that host instead of this one.
 
 ### The one that breaks silently
 

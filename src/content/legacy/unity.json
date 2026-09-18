@@ -116,14 +116,14 @@
     "symbol": "UnityEngine.Networking",
     "replacedBy": "multiplayer",
     "note": "UNet was removed. Netcode for GameObjects is the current Unity answer; Godot's equivalent is built into the engine.",
-    "docsUrl": "https://docs-multiplayer.unity3d.com/netcode/current/about/"
+    "docsUrl": "https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@latest/"
   },
   {
     "id": "networkview",
     "symbol": "NetworkView",
     "replacedBy": "multiplayer",
     "note": "Removed with the legacy networking system. See the modern multiplayer mapping.",
-    "docsUrl": "https://docs-multiplayer.unity3d.com/netcode/current/about/"
+    "docsUrl": "https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@latest/"
   },
   {
     "id": "animation-component",

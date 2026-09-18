@@ -4,12 +4,10 @@ import sitemap from '@astrojs/sitemap';
 
 /**
  * The canonical origin. Used for <link rel="canonical">, Open Graph URLs and
- * the sitemap — so it must be the real deployed origin, with no trailing slash.
- *
- * Set SITE_URL in the host's build environment. The fallback is a placeholder
- * and is only correct if you actually own that domain.
+ * the sitemap. Override with SITE_URL when deploying somewhere else — e.g. a
+ * custom domain later on.
  */
-const SITE = process.env.SITE_URL ?? 'https://gdref.dev';
+const SITE = process.env.SITE_URL ?? 'https://gdref.netlify.app';
 
 export default defineConfig({
   site: SITE,

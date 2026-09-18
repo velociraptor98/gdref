@@ -7,7 +7,7 @@ bindings:
   - engine: unity
     symbol: Unity.Netcode.NetworkBehaviour
     signature: '[Rpc(SendTo.Server)] void DoThingRpc()'
-    docsUrl: https://docs-multiplayer.unity3d.com/netcode/current/about/
+    docsUrl: https://docs.unity3d.com/Packages/com.unity.netcode.gameobjects@latest/
     snippet: |
       public class Player : NetworkBehaviour
       {
